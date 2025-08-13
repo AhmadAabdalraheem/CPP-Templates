@@ -42,12 +42,3 @@
 
     // 11. Erase from middle position - O(n)
     dq.erase(dq.begin() + 2);
-
-    // Final state
-    cout << "Final elements: ";
-    for(int num : dq) {
-        cout << num << " ";
-    }
-    cout << endl;
-
-    return 0;
