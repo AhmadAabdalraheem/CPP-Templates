@@ -16,6 +16,12 @@
     auto lb = mySet.lower_bound(15);
     auto ub = mySet.upper_bound(25);
 
+// First element >= x
+auto it = s.lower_bound(x); 
+if(it != s.begin()) {
+    --it; // Largest element < x
+}
+
     // Removal
     mySet.erase(10);         // O(log n)
 
