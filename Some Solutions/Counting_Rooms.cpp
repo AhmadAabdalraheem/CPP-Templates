@@ -24,55 +24,37 @@ ll lcm(ll a,ll b)     {return a/gcd(a,b)*b;}
 ll summ(ll n)         {return  n * ( n+1)/2;}
 
 ////////////////////////////////////////Sol:////////////////////////////////////////
-
+const int N = 1002;
+int  n ; bool visited[N] ; vector<int> adj[N];
+char arr[N][N];
 vi  dx ={0 , 0 , 1 , -1 };
 vi dy = {1 , -1 , 0 , 0};
-const int NN =1e3 + 5;
-vector<int> g[NN];
-bool visited[NN][NN];
-int n , m , ans , maxi ;
-char arr[NN] [NN];
-bool valid(int x, int y)
+int ans ;
+void dfs( int node)
 {
-    return x>=0 && x<n && y>=0 && y <m && !visited[x][y] && arr[x][y] !='#'; 
-}
-void dfs(int x , int y )
-{   
-
-    visited[x][y] =1 ;
-    
-    for(int i = 0 ; i<4 ; i++)
+    visited[node] = 1;
+    for(auto it : adj[node])
     {
-        int nx = x+dx[i];
-        int ny = y + dy[i];
-        if(valid(nx,ny))
-        {   
-            dfs(nx,ny);
+        if(!visited[it])
+        {
+            dfs(it); 
         }
     }
+
 }
+
 void solve(int test_cases)
-{	
-   cin>>n>>m;
-   for(int i = 0 ; i<n ; i++)
-   {
-    for(int j = 0 ; j<m ; j++)
+{
+    int n, m;
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++)
     {
-        cin>>arr[i][j];
-    }
-   }
-   for(int i = 0 ; i<n ; i++)
-   {
-    for(int j = 0 ; j<m ; j++)
-    {
-        if(valid(i,j))
-        {   ans++;
-            dfs(i,j);
+        for (int j = 1; j <= m; j++)
+        {
+            cin >> arr[i][j];
         }
     }
-   }
-
-   cout<<ans<<endl;
+    dfs(1);
 }
 
 signed main()

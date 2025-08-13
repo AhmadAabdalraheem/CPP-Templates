@@ -1,5 +1,8 @@
 #include <bits/stdc++.h>
+// #include <ext/pb_ds/assoc_container.hpp>
+// #include <ext/pb_ds/tree_policy.hpp>
 #define Abdalraheem  ios_base::sync_with_stdio(false), cin.tie(nullptr), cout.tie(nullptr);
+//using namespace __gnu_pbds;
 using namespace std;
 #define ll long long
 #define ld long double
@@ -8,9 +11,6 @@ using namespace std;
 #define vi vector<int>
 #define vl vector<long long>
 #define vii vector<vector<int>>
-#define co(x) __builtin_popcountll(x)
-#define ctz(x) __builtin_ctzll(x)
-#define clz(x) __builtin_clzll(x)
 #define sz size()
 #define ed end()
 #define bg begin()
@@ -21,17 +21,34 @@ using namespace std;
 #define allr(v) v.rbegin(), v.rend()
 #define cin(v) for (auto &_ : v) cin >> _;
 #define cout(v) for (auto &_: v) cout << _ << " " ;
-#define setp(n) cout << fixed << setprecision(n)
 #define PI acos(-1)
 ll gcd(ll a, ll b)    {if (b == 0) return a; return gcd(b, a % b);} //O(log min(a, b))
 ll lcm(ll a,ll b)     {return a/gcd(a,b)*b;}
 ll summ(ll n)         {return  n * ( n+1)/2;}
-
+// typedef tree<int, null_type, less_equal<int>, rb_tree_tag,
+//              tree_order_statistics_node_update>
+//     ordered_multiset;
 ////////////////////////////////////////Sol:////////////////////////////////////////
+
+vi  dx ={0 , 0 , 1 , -1 };
+vi dy = {1 , -1 , 0 , 0};
 
 void solve(int test_cases)
 {	
-    
+   int a , b;
+   cin>>a>>b;
+   if(b == 0 && a> 0)
+   {
+    cout<<"Gold";
+   }
+   else if(a == 0 && b > 0)
+   {
+    cout<<"Silver";
+   }
+   else
+   {
+    cout<<"Alloy";
+   }
 }
 
 signed main()
@@ -89,7 +106,7 @@ void Spf(ll n)
     spf.resize(n + 1);
     for (int i = 0; i <= n; i++)
         spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
+    for (ll i = 2; i * i < N; i++) // smallest prime factor 
     {
         if (spf[i] == i)
         {
@@ -137,7 +154,17 @@ bool is_prime(ll x) { // O(SQRT(N)))
     }
     return 1;
 }
+ll fastpow(ll a, ll b)
+{
+    if (b == 0)
+        return 1;
 
+    ll res = fastpow(a, b / 2);
+    if (b % 2) // b odd
+        return res * res * a;
+    else // b even
+        return res * res;
+}
 string to_binary(ll n)
 {
 	string s;

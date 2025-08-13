@@ -31,7 +31,21 @@ ll summ(ll n)         {return  n * ( n+1)/2;}
 
 void solve(int test_cases)
 {	
-    
+    int n , m1 , m ;
+    cin>>n>>m1;
+    vi v1(n); 
+    cin(v1);
+    cin>>m;
+   
+    if(is_sorted(all(v1)))
+    {
+        YES;
+    }
+    v1[0] = min(v1[0] , m - v1[0]);
+    for(int i = 0 ; i<n-1 ; i++)
+    {
+        int x1 = 
+    }
 }
 
 signed main()
@@ -42,7 +56,7 @@ signed main()
     Abdalraheem;
     int t= 1;
 	
-    //cin >> t;
+    cin >> t;
     for (int i = 1; i <= t; i++)
 	solve(i);
 }

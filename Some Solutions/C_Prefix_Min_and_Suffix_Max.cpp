@@ -31,7 +31,47 @@ ll summ(ll n)         {return  n * ( n+1)/2;}
 
 void solve(int test_cases)
 {	
-    
+    ll n ;
+    cin>>n;
+    vi v(n);
+    cin(v);
+    vi pref(n, false);
+    int min = v[0];
+    pref[0] = true;
+    for (int i = 1; i < n; i++)
+    {
+        if (v[i] < min)
+        {
+            min = v[i];
+            pref[i] = true;
+        }
+    }
+
+    vi suf(n, false);
+    int max = v[n - 1];
+    suf[n - 1] = true;
+    for (int i = n - 2; i >= 0; --i)
+    {
+        if (v[i] > max)
+        {
+            max = v[i];
+            suf[i] = true;
+        }
+    }
+    string res= "";
+    for (int i = 0; i < n; ++i)
+    {
+        if (pref[i] || suf[i])
+        {
+            res += '1';
+        }
+        else
+        {
+            res += '0';
+        }
+    }
+
+    cout << res << endl;
 }
 
 signed main()
@@ -42,7 +82,7 @@ signed main()
     Abdalraheem;
     int t= 1;
 	
-    //cin >> t;
+    cin >> t;
     for (int i = 1; i <= t; i++)
 	solve(i);
 }
@@ -89,7 +129,7 @@ void Spf(ll n)
     spf.resize(n + 1);
     for (int i = 0; i <= n; i++)
         spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
+    for (ll i = 2; i * i < N; i++) // smallest prime factor 
     {
         if (spf[i] == i)
         {

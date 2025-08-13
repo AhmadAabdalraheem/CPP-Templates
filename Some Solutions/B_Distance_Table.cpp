@@ -23,15 +23,30 @@ using namespace std;
 #define cout(v) for (auto &_: v) cout << _ << " " ;
 #define setp(n) cout << fixed << setprecision(n)
 #define PI acos(-1)
-ll gcd(ll a, ll b)    {if (b == 0) return a; return gcd(b, a % b);} //O(log min(a, b))
+ll gcd(ll a, ll b)    {if (b == 0) return a;return gcd(b, a % b);}
 ll lcm(ll a,ll b)     {return a/gcd(a,b)*b;}
 ll summ(ll n)         {return  n * ( n+1)/2;}
 
 ////////////////////////////////////////Sol:////////////////////////////////////////
-
 void solve(int test_cases)
 {	
-    
+    int n ;
+    cin>>n;
+    vi v(n);
+    cin(v);
+    for(int i = 0 ; i<n-1 ;i++)
+    {   
+        ll sum = v[i];
+        cout<<sum<< ' ';
+        for(int j = i+1 ; j<n -1;j++)
+        {
+            sum+= v[j];
+            cout<<sum<< ' ';
+        }
+        sum = 0 ;
+        cout<<endl;
+    }
+	
 }
 
 signed main()
@@ -48,86 +63,25 @@ signed main()
 }
 
 //----------------------------------------------Functions-----------------------------------------------------//
-vector<ll> primefactors(ll n ) //O(SQRT(N))
+bool issubstring(string a , string b)
 {
-    vector<ll> fact;
-    for(ll i = 2;  i*i <= n ;i++)
-    {
-        while(n% i == 0)
+    for(int i = 0 ; i < a.sz - b.sz; i++)
+    {   
+		bool found = true;
+		
+        for(int j = 0 ; j<b.sz ; j++)
         {
-            fact.push_back(i);
-            n/=i;
-        }
-    }
-    if(n>1)
-    fact.push_back(n);
-    return fact; 
-}
-
-int const N = 1e6 + 5;
-bool prime[N] ;
-void seiveofEratosthenes() //O(N * LOG(LOG(N)))
-{
-    memset(prime, true, sizeof prime );
-    prime[0] = prime[1] = 0;
-    for(ll i = 2;  i*i <=N; i++) //primes from 1 to n 
-    {
-        if( prime[i] == 1)
-        {
-            for(ll j = i+i ; j<=N ; j+=i)
+			if(a[i+j] != b[j])
             {
-                prime[j]  = 0;
+				found = false;
+                break;
             }
         }
-    }
-    
-}
-
-vl spf;
-void Spf(ll n)
-{
-    spf.resize(n + 1);
-    for (int i = 0; i <= n; i++)
-        spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
-    {
-        if (spf[i] == i)
-        {
-            for (ll j = i + i; j <= N; j += i)
-            {
-                spf[j] = min(spf[j], i);
-            }
-        }
+        if (found) 
+        return true;
     }
 }
-vector<ll > primefactors2 (ll n) // O(LOG(N))
-{
-    vector<ll>factors;
-    while(n > 1)
-    {
-        factors.push_back(spf[n]);
-        n/= spf[n];
-    }
-    return factors;
-}
-vector<long long> divisor(long long n) // O(SQRT(N))
-{
-	vector<long long> divisors;
-	for (long long d = 2; d *d <= n; d++)
-	{
-		if(n % d == 0)
-		{
-			divisors.push_back(d);
-			if (d != n / d) 
-			{
-				divisors.push_back(n / d);
-			}
-		}
-	}
-	return divisors;
-}
-
-bool is_prime(ll x) { // O(SQRT(N)))
+bool is_prime(ll x) {
 	if (x < 2) return 0;
 	
     for (ll i = 2; i * i <= x; ++i) 

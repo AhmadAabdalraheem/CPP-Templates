@@ -31,7 +31,30 @@ ll summ(ll n)         {return  n * ( n+1)/2;}
 
 void solve(int test_cases)
 {	
-    
+    int n , j , k ;
+    cin>>n>>j>>k;
+    vi v(n+1);
+    for(int i =1  ;i<= n ; i++)
+    {
+        cin>>v[i];
+    }
+    int maxi = *max_element(all(v));
+    if(k >= 2 )
+    {
+        YES
+    }
+    else
+    {
+        if(v[j] == maxi)
+        {
+            YES
+        }
+        else
+        {
+            NO
+        }
+    }
+
 }
 
 signed main()
@@ -42,7 +65,7 @@ signed main()
     Abdalraheem;
     int t= 1;
 	
-    //cin >> t;
+    cin >> t;
     for (int i = 1; i <= t; i++)
 	solve(i);
 }
@@ -89,7 +112,7 @@ void Spf(ll n)
     spf.resize(n + 1);
     for (int i = 0; i <= n; i++)
         spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
+    for (ll i = 2; i * i < N; i++) // smallest prime factor 
     {
         if (spf[i] == i)
         {

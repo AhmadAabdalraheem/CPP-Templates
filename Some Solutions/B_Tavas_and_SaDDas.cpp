@@ -28,10 +28,27 @@ ll lcm(ll a,ll b)     {return a/gcd(a,b)*b;}
 ll summ(ll n)         {return  n * ( n+1)/2;}
 
 ////////////////////////////////////////Sol:////////////////////////////////////////
+ll x  ;
+ll ans = 0 ;
+void rec( ll n=0, ll i=0  ) // binary tree  
+{   
+    // base case
+    if( n> x) return;
+    if( n == x )
+    {
+        cout<<i;
+        return;
+    }
+    //transition
 
+    rec( n * 10 +4 , 2 * i +1 ); // left child  2 * idx +1 
+
+    rec( n * 10 + 7 ,  2 * i + 2); // right child 2*idx +2 
+}
 void solve(int test_cases)
 {	
-    
+    cin>>x;
+    rec();
 }
 
 signed main()
@@ -89,7 +106,7 @@ void Spf(ll n)
     spf.resize(n + 1);
     for (int i = 0; i <= n; i++)
         spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
+    for (ll i = 2; i * i < N; i++) // smallest prime factor 
     {
         if (spf[i] == i)
         {
@@ -137,7 +154,17 @@ bool is_prime(ll x) { // O(SQRT(N)))
     }
     return 1;
 }
+ll fastpow(ll a, ll b)
+{
+    if (b == 0)
+        return 1;
 
+    ll res = fastpow(a, b / 2);
+    if (b % 2) // b odd
+        return res * res * a;
+    else // b even
+        return res * res;
+}
 string to_binary(ll n)
 {
 	string s;

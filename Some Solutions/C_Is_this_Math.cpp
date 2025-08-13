@@ -31,7 +31,15 @@ ll summ(ll n)         {return  n * ( n+1)/2;}
 
 void solve(int test_cases)
 {	
-    
+     ll a , n ;
+     cin>>a>>n;
+     ll x = a*(n/a);
+     ll y= (a*n) / a;
+     if(x == y)
+     {
+        YES
+     }
+     NO
 }
 
 signed main()
@@ -42,7 +50,7 @@ signed main()
     Abdalraheem;
     int t= 1;
 	
-    //cin >> t;
+    cin >> t;
     for (int i = 1; i <= t; i++)
 	solve(i);
 }
@@ -63,11 +71,17 @@ vector<ll> primefactors(ll n ) //O(SQRT(N))
     fact.push_back(n);
     return fact; 
 }
-
 int const N = 1e6 + 5;
 bool prime[N] ;
+ll spf[N];
 void seiveofEratosthenes() //O(N * LOG(LOG(N)))
 {
+    
+    for(ll i = 1; i<N ; i++)
+    {
+        spf[i] = i;
+    }
+   
     memset(prime, true, sizeof prime );
     prime[0] = prime[1] = 0;
     for(ll i = 2;  i*i <=N; i++) //primes from 1 to n 
@@ -80,23 +94,15 @@ void seiveofEratosthenes() //O(N * LOG(LOG(N)))
             }
         }
     }
-    
-}
-
-vl spf;
-void Spf(ll n)
-{
-    spf.resize(n + 1);
-    for (int i = 0; i <= n; i++)
-        spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
+    for( ll i = 2 ; i*i <N; i ++) // spf
     {
-        if (spf[i] == i)
+        if( spf[i] == i)
         {
-            for (ll j = i + i; j <= N; j += i)
+            for(ll j = i+i ; j<=N ; j+=i)
             {
-                spf[j] = min(spf[j], i);
+                spf[j] = min(spf[j] , i);
             }
+            
         }
     }
 }
@@ -108,7 +114,6 @@ vector<ll > primefactors2 (ll n) // O(LOG(N))
         factors.push_back(spf[n]);
         n/= spf[n];
     }
-    return factors;
 }
 vector<long long> divisor(long long n) // O(SQRT(N))
 {

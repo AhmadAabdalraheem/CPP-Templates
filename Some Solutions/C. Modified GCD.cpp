@@ -8,9 +8,7 @@ using namespace std;
 #define vi vector<int>
 #define vl vector<long long>
 #define vii vector<vector<int>>
-#define co(x) __builtin_popcountll(x)
-#define ctz(x) __builtin_ctzll(x)
-#define clz(x) __builtin_clzll(x)
+#define vll vector<vector<long long>>
 #define sz size()
 #define ed end()
 #define bg begin()
@@ -21,7 +19,6 @@ using namespace std;
 #define allr(v) v.rbegin(), v.rend()
 #define cin(v) for (auto &_ : v) cin >> _;
 #define cout(v) for (auto &_: v) cout << _ << " " ;
-#define setp(n) cout << fixed << setprecision(n)
 #define PI acos(-1)
 ll gcd(ll a, ll b)    {if (b == 0) return a; return gcd(b, a % b);} //O(log min(a, b))
 ll lcm(ll a,ll b)     {return a/gcd(a,b)*b;}
@@ -29,25 +26,74 @@ ll summ(ll n)         {return  n * ( n+1)/2;}
 
 ////////////////////////////////////////Sol:////////////////////////////////////////
 
-void solve(int test_cases)
-{	
-    
+vi  dx ={0 , 0 , 1 , -1 };
+vi dy = {1 , -1 , 0 , 0};
+
+const ll MOD = 1e9+7;
+const int nn = 2e3 +5;
+ll l , r ;
+ll a, b;
+bool can (ll mid) {
+	return ( a % mid == 0 && b % mid == 0);
 }
+void solve() {
+
+	cin>>a>>b;
+	ll n ;
+	cin>>n;
+	while (n--) {
+
+		cin>>l>>r;
+		ll ans = -1;
+		while ( l <= r) {
+			ll mid = l + ( r- l ) / 2;
+			if (can(mid)) {
+				r = mid - 1;
+				ans = mid;
+			}
+			else {
+				l = mid +1 ;
+			}
+		}
+		cout<<ans<<endl;
+	}
+
+
+}
+
+
 
 signed main()
 {
-	
-	// freopen("divsnums.in", "r", stdin);
-	// freopen("divsnums.out", "w", stdout);
+
+	// freopen("input.txt", "r", stdin);
+	// freopen("output.txt", "w", stdout);
     Abdalraheem;
     int t= 1;
-	
-    //cin >> t;
+
+	//cin >> t;
     for (int i = 1; i <= t; i++)
-	solve(i);
+	solve();
 }
 
 //----------------------------------------------Functions-----------------------------------------------------//
+vl spf;
+void Spf(ll n)
+{
+    spf.resize(n + 1);
+    for (int i = 0; i <= n; i++)
+        spf[i] = i;
+    for (ll i = 2; i * i < nn; i++) // smallest prime factor
+    {
+        if (spf[i] == i)
+        {
+            for (ll j = i + i; j <= nn; j += i)
+            {
+                spf[j] = min(spf[j], i);
+            }
+        }
+    }
+}
 vector<ll> primefactors(ll n ) //O(SQRT(N))
 {
     vector<ll> fact;
@@ -61,7 +107,7 @@ vector<ll> primefactors(ll n ) //O(SQRT(N))
     }
     if(n>1)
     fact.push_back(n);
-    return fact; 
+    return fact;
 }
 
 int const N = 1e6 + 5;
@@ -70,7 +116,7 @@ void seiveofEratosthenes() //O(N * LOG(LOG(N)))
 {
     memset(prime, true, sizeof prime );
     prime[0] = prime[1] = 0;
-    for(ll i = 2;  i*i <=N; i++) //primes from 1 to n 
+    for(ll i = 2;  i*i <=N; i++) //primes from 1 to n
     {
         if( prime[i] == 1)
         {
@@ -80,26 +126,9 @@ void seiveofEratosthenes() //O(N * LOG(LOG(N)))
             }
         }
     }
-    
+
 }
 
-vl spf;
-void Spf(ll n)
-{
-    spf.resize(n + 1);
-    for (int i = 0; i <= n; i++)
-        spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
-    {
-        if (spf[i] == i)
-        {
-            for (ll j = i + i; j <= N; j += i)
-            {
-                spf[j] = min(spf[j], i);
-            }
-        }
-    }
-}
 vector<ll > primefactors2 (ll n) // O(LOG(N))
 {
     vector<ll>factors;
@@ -118,7 +147,7 @@ vector<long long> divisor(long long n) // O(SQRT(N))
 		if(n % d == 0)
 		{
 			divisors.push_back(d);
-			if (d != n / d) 
+			if (d != n / d)
 			{
 				divisors.push_back(n / d);
 			}
@@ -129,22 +158,43 @@ vector<long long> divisor(long long n) // O(SQRT(N))
 
 bool is_prime(ll x) { // O(SQRT(N)))
 	if (x < 2) return 0;
-	
-    for (ll i = 2; i * i <= x; ++i) 
+
+    for (ll i = 2; i * i <= x; ++i)
 	{
-		if (x % i == 0) 
+		if (x % i == 0)
 		return 0;
     }
     return 1;
 }
+ll binpow(ll a, ll b) //O(LOG(N))
+{
+    if (b == 0)
+        return 1;
 
+    ll res = binpow(a, b / 2);
+    if (b % 2) // b odd
+        return res * res * a;
+    else // b even
+        return res * res;
+}
+ll fast_pow(ll base, ll exp) {
+	ll result = 1;
+	while (exp > 0) {
+		if (exp % 2 == 1) {
+			result = (result * base) % MOD;
+		}
+		base = (base * base) % MOD;
+		exp /= 2;
+	}
+	return result;
+}
 string to_binary(ll n)
 {
 	string s;
 	while (n > 0)
 	{
 		int rem = n % 2;
-		
+
 		s.push_back(char(rem + '0'));
 		n /= 2;
 	}

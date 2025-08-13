@@ -3,14 +3,9 @@
 using namespace std;
 #define ll long long
 #define ld long double
-#define ull unsigned long long
 #define endl '\n'
 #define vi vector<int>
-#define vl vector<long long>
-#define vii vector<vector<int>>
-#define co(x) __builtin_popcountll(x)
-#define ctz(x) __builtin_ctzll(x)
-#define clz(x) __builtin_clzll(x)
+#define vl vector<long long >
 #define sz size()
 #define ed end()
 #define bg begin()
@@ -22,16 +17,43 @@ using namespace std;
 #define cin(v) for (auto &_ : v) cin >> _;
 #define cout(v) for (auto &_: v) cout << _ << " " ;
 #define setp(n) cout << fixed << setprecision(n)
-#define PI acos(-1)
-ll gcd(ll a, ll b)    {if (b == 0) return a; return gcd(b, a % b);} //O(log min(a, b))
-ll lcm(ll a,ll b)     {return a/gcd(a,b)*b;}
-ll summ(ll n)         {return  n * ( n+1)/2;}
 
 ////////////////////////////////////////Sol:////////////////////////////////////////
 
+bool isprime(ll x)
+{
+    if (x < 2)
+        return 0;
+
+    for (ll i = 2; i * i <= x; i++)
+    {
+        if (x % i == 0)
+            return 0;
+    }
+    return 1;
+}
+
+int nxtprime(int start)
+{
+    int num = start;
+    while (true)
+    {
+        if (isprime(num))
+        {
+            return num;
+        }
+        num++;
+    }
+}
 void solve(int test_cases)
-{	
-    
+{
+    int d;
+    cin >> d;
+
+    int a = nxtprime(1 + d);
+    int b = nxtprime(a + d);
+
+    cout << a * b << endl;
 }
 
 signed main()
@@ -42,100 +64,43 @@ signed main()
     Abdalraheem;
     int t= 1;
 	
-    //cin >> t;
+    cin >> t;
     for (int i = 1; i <= t; i++)
 	solve(i);
 }
 
 //----------------------------------------------Functions-----------------------------------------------------//
-vector<ll> primefactors(ll n ) //O(SQRT(N))
+bool issubstring(string a , string b)
 {
-    vector<ll> fact;
-    for(ll i = 2;  i*i <= n ;i++)
-    {
-        while(n% i == 0)
-        {
-            fact.push_back(i);
-            n/=i;
-        }
-    }
-    if(n>1)
-    fact.push_back(n);
-    return fact; 
-}
+    for(int i = 0 ; i < a.sz - b.sz; i++)
+    {   
+        bool found = true;
 
-int const N = 1e6 + 5;
-bool prime[N] ;
-void seiveofEratosthenes() //O(N * LOG(LOG(N)))
-{
-    memset(prime, true, sizeof prime );
-    prime[0] = prime[1] = 0;
-    for(ll i = 2;  i*i <=N; i++) //primes from 1 to n 
-    {
-        if( prime[i] == 1)
+        for(int j = 0 ; j<b.sz ; j++)
         {
-            for(ll j = i+i ; j<=N ; j+=i)
+            if(a[i+j] != b[j])
             {
-                prime[j]  = 0;
+                found = false;
+                break;
             }
         }
+        if (found) 
+        return true;
     }
-    
 }
+ll gcd(ll a, ll b)
+{
+	if (b == 0) return a;
 
-vl spf;
-void Spf(ll n)
-{
-    spf.resize(n + 1);
-    for (int i = 0; i <= n; i++)
-        spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
-    {
-        if (spf[i] == i)
-        {
-            for (ll j = i + i; j <= N; j += i)
-            {
-                spf[j] = min(spf[j], i);
-            }
-        }
-    }
+	return gcd(b, a % b);
 }
-vector<ll > primefactors2 (ll n) // O(LOG(N))
+ll lcm(ll a,ll b)
 {
-    vector<ll>factors;
-    while(n > 1)
-    {
-        factors.push_back(spf[n]);
-        n/= spf[n];
-    }
-    return factors;
+	return a/gcd(a,b)*b;
 }
-vector<long long> divisor(long long n) // O(SQRT(N))
+ll summ(ll n)
 {
-	vector<long long> divisors;
-	for (long long d = 2; d *d <= n; d++)
-	{
-		if(n % d == 0)
-		{
-			divisors.push_back(d);
-			if (d != n / d) 
-			{
-				divisors.push_back(n / d);
-			}
-		}
-	}
-	return divisors;
-}
-
-bool is_prime(ll x) { // O(SQRT(N)))
-	if (x < 2) return 0;
-	
-    for (ll i = 2; i * i <= x; ++i) 
-	{
-		if (x % i == 0) 
-		return 0;
-    }
-    return 1;
+	return  n * ( n+1)/2;
 }
 
 string to_binary(ll n)
@@ -144,7 +109,7 @@ string to_binary(ll n)
 	while (n > 0)
 	{
 		int rem = n % 2;
-		
+
 		s.push_back(char(rem + '0'));
 		n /= 2;
 	}
@@ -172,11 +137,11 @@ int removebit(int x , int i )
 	return x & (~(1<<i));
 }
 //check the existence of the ith bit
+
 bool checkbit(int x , int i )
 {
-	return (x>>i) & 1;
+	return x & (1<<i);
 }
-
 //flip the bit
 int flipbite(int x, int i )
 {

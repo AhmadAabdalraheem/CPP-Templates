@@ -31,7 +31,27 @@ ll summ(ll n)         {return  n * ( n+1)/2;}
 
 void solve(int test_cases)
 {	
-    
+    int n ;
+    cin>>n;
+    if (n % 2 == 0)
+    {
+        int x = n/ 2;
+        cout<<x<<endl;
+        while(x--)
+        {
+            cout<<2 <<' ' ;
+        }
+    }
+    else
+    {
+        int x = n/2 -1 ;
+        cout<<x+1<<endl;
+        while(x--)
+        {
+            cout<<2<< ' ';
+        }
+        cout<<3;
+    }
 }
 
 signed main()
@@ -89,7 +109,7 @@ void Spf(ll n)
     spf.resize(n + 1);
     for (int i = 0; i <= n; i++)
         spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
+    for (ll i = 2; i * i < N; i++) // smallest prime factor 
     {
         if (spf[i] == i)
         {

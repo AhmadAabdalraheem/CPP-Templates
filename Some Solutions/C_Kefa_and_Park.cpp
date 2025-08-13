@@ -8,9 +8,6 @@ using namespace std;
 #define vi vector<int>
 #define vl vector<long long>
 #define vii vector<vector<int>>
-#define co(x) __builtin_popcountll(x)
-#define ctz(x) __builtin_ctzll(x)
-#define clz(x) __builtin_clzll(x)
 #define sz size()
 #define ed end()
 #define bg begin()
@@ -21,7 +18,6 @@ using namespace std;
 #define allr(v) v.rbegin(), v.rend()
 #define cin(v) for (auto &_ : v) cin >> _;
 #define cout(v) for (auto &_: v) cout << _ << " " ;
-#define setp(n) cout << fixed << setprecision(n)
 #define PI acos(-1)
 ll gcd(ll a, ll b)    {if (b == 0) return a; return gcd(b, a % b);} //O(log min(a, b))
 ll lcm(ll a,ll b)     {return a/gcd(a,b)*b;}
@@ -29,9 +25,51 @@ ll summ(ll n)         {return  n * ( n+1)/2;}
 
 ////////////////////////////////////////Sol:////////////////////////////////////////
 
+vi  dx ={0 , 0 , 1 , -1 };
+vi dy = {1 , -1 , 0 , 0};
+int n , m , ans;
+const int NN = 2e5 +5 ;
+vi g[NN];
+bool visited[NN] , cats[NN];
+
+void dfs(int node ,int cnt  )
+{
+    visited[node] = 1;
+
+    if (cnt > m)
+        return;
+    if (!cats[node])
+        cnt = 0;
+
+    bool leaf = 1;
+    for (int it : g[node])
+    {
+        if (!visited[it])
+        {
+            dfs(it, cnt + cats[it]);
+            leaf = 0;
+        }
+    }
+    ans += leaf;
+}
 void solve(int test_cases)
 {	
-    
+   cin>>n>>m;
+   for(int i = 1 ; i<=n ; i++)
+   {
+    cin>>cats[i];
+   }
+   for(int i = 0; i<n ; i++)
+   {
+    int u , v ;
+    cin>>u>>v;
+    g[u]. push_back(v);
+    g[v].push_back(u);
+
+   }
+   dfs(1, cats[1]);
+   cout<<ans;
+
 }
 
 signed main()
@@ -89,7 +127,7 @@ void Spf(ll n)
     spf.resize(n + 1);
     for (int i = 0; i <= n; i++)
         spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
+    for (ll i = 2; i * i < N; i++) // smallest prime factor 
     {
         if (spf[i] == i)
         {
@@ -137,7 +175,17 @@ bool is_prime(ll x) { // O(SQRT(N)))
     }
     return 1;
 }
+ll fastpow(ll a, ll b)
+{
+    if (b == 0)
+        return 1;
 
+    ll res = fastpow(a, b / 2);
+    if (b % 2) // b odd
+        return res * res * a;
+    else // b even
+        return res * res;
+}
 string to_binary(ll n)
 {
 	string s;

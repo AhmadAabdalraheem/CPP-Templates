@@ -31,7 +31,12 @@ ll summ(ll n)         {return  n * ( n+1)/2;}
 
 void solve(int test_cases)
 {	
-    
+	int n , m ;
+	cin>>n>>m;
+	vi v1(n) , v2(m);
+	cin(v1);cin(v2);
+	sort(all(v1));
+	
 }
 
 signed main()
@@ -48,69 +53,22 @@ signed main()
 }
 
 //----------------------------------------------Functions-----------------------------------------------------//
-vector<ll> primefactors(ll n ) //O(SQRT(N))
+vector<long long> facotors(long long n)
 {
-    vector<ll> fact;
-    for(ll i = 2;  i*i <= n ;i++)
-    {
-        while(n% i == 0)
-        {
-            fact.push_back(i);
-            n/=i;
-        }
-    }
-    if(n>1)
-    fact.push_back(n);
-    return fact; 
+	vector<long long> factorization;
+	for (long long d = 2; d * d <= n; d++)
+	{
+		while (n % d == 0)
+		{
+			factorization.push_back(d);
+			n /= d;
+		}
+	}
+	if (n > 1)
+		factorization.push_back(n);
+	return factorization;
 }
-
-int const N = 1e6 + 5;
-bool prime[N] ;
-void seiveofEratosthenes() //O(N * LOG(LOG(N)))
-{
-    memset(prime, true, sizeof prime );
-    prime[0] = prime[1] = 0;
-    for(ll i = 2;  i*i <=N; i++) //primes from 1 to n 
-    {
-        if( prime[i] == 1)
-        {
-            for(ll j = i+i ; j<=N ; j+=i)
-            {
-                prime[j]  = 0;
-            }
-        }
-    }
-    
-}
-
-vl spf;
-void Spf(ll n)
-{
-    spf.resize(n + 1);
-    for (int i = 0; i <= n; i++)
-        spf[i] = i;
-    for (ll i = 2; i * i < N; i++) // smallest prime factor
-    {
-        if (spf[i] == i)
-        {
-            for (ll j = i + i; j <= N; j += i)
-            {
-                spf[j] = min(spf[j], i);
-            }
-        }
-    }
-}
-vector<ll > primefactors2 (ll n) // O(LOG(N))
-{
-    vector<ll>factors;
-    while(n > 1)
-    {
-        factors.push_back(spf[n]);
-        n/= spf[n];
-    }
-    return factors;
-}
-vector<long long> divisor(long long n) // O(SQRT(N))
+vector<long long> divisor(long long n)
 {
 	vector<long long> divisors;
 	for (long long d = 2; d *d <= n; d++)
@@ -126,8 +84,25 @@ vector<long long> divisor(long long n) // O(SQRT(N))
 	}
 	return divisors;
 }
-
-bool is_prime(ll x) { // O(SQRT(N)))
+bool issubstring(string a , string b)
+{
+    for(int i = 0 ; i < a.sz - b.sz; i++)
+    {   
+		bool found = true;
+		
+        for(int j = 0 ; j<b.sz ; j++)
+        {
+			if(a[i+j] != b[j])
+            {
+				found = false;
+                break;
+            }
+        }
+        if (found) 
+        return true;
+    }
+}
+bool is_prime(ll x) {
 	if (x < 2) return 0;
 	
     for (ll i = 2; i * i <= x; ++i) 
