@@ -1,31 +1,9 @@
- Set (Ordered Unique Elements)
-
- set<int> mySet = {30, 10, 20};
-
-    // Insertion
-    mySet.insert(15);        // O(log n)
-    mySet.insert(25);
-
-    // Access
-    auto it = mySet.find(20); // O(log n)
-    if(it != mySet.end()) {
-        cout << "Found: " << *it << endl;
-    }
-
-    // Range queries
-    auto lb = mySet.lower_bound(15);
-    auto ub = mySet.upper_bound(25);
-
-// First element >= x
-auto it = s.lower_bound(x); 
-if(it != s.begin()) {
-    --it; // Largest element < x
-}
-
-    // Removal
-    mySet.erase(10);         // O(log n)
-
-    // Iteration (sorted order)
-    for(int num : mySet) {
-        cout << num << " ";
-    }
+// ==================== set ====================
+// Ordered unique elements (balanced BST)
+set<int> s = {3,1,2};
+s.insert(4);           // O(log n) : insert element
+s.erase(1);            // O(log n) : erase by value
+s.count(3);            // O(log n) -> size_t : how many times val exists (0/1)
+s.find(2);             // O(log n) -> iterator to element or end()
+s.lower_bound(2);      // O(log n) -> iterator (first >= val)
+s.upper_bound(2);      // O(log n) -> iterator (first > val)
