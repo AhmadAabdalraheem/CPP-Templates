@@ -1,10 +1,17 @@
-#include <vector>
-
-vector<int> v;
-
-// Insertion at end - O(1) amortized
-v.push_back(10);  
+// ==================== vector ====================
+// Dynamic array (fast random access, can grow)
+// Access O(1), Insert at end O(1) amortized, Insert in middle O(n)
+vector<int> v = {1,2,3};
+v.push_back(4);   // O(1) amortized
 v.emplace_back(20);  // More efficient than push_back
+v.pop_back();     // O(1)
+v.front();        // O(1)
+v.back();         // O(1)
+v.size();         // O(1)
+sort(v.begin(), v.end()); // O(n log n)
+reverse(v.begin(), v.end()); // O(n)
+
+vector<ll > vv ( n , 1 ) // initialize  with 1
 
 // Access elements - O(1)
 int first = v[0];       // No bounds checking
