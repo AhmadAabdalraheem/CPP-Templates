@@ -1,17 +1,11 @@
-#include <deque>
+// ==================== deque ====================
+// Double-ended queue (fast insertion/removal at both ends)
+// Access O(1), Insert/Remove at ends O(1)
 
-deque<int> dq;
-
-// Insertion at both ends - O(1)
-dq.push_back(10);
-dq.push_front(5);
-
-// Access - O(1)
-int front = dq.front();
-int back = dq.back();
-int elem = dq[2];
-
-// Removal - O(1) at ends, O(n) in middle
-dq.pop_back();
-dq.pop_front();
-dq.erase(dq.begin() + 1);
+deque<int> dq = {1,2};
+dq.push_front(0); // O(1)
+dq.push_back(3);  // O(1)
+dq.pop_front();   // O(1)
+dq.pop_back();    // O(1)
+dq.front();       // O(1)
+dq.back();        // O(1)
