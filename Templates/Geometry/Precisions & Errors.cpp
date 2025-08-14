@@ -1,5 +1,6 @@
 use EPS for Comparing
 double --> 17 dig , ld --->20 dig
+// overall digits including the digits before precision
 
 const ld EPS = 1e-9;
 
