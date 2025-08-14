@@ -34,3 +34,9 @@ T angleTravelled(pt a, pt b, pt c){
     if(orient(a, b, c) > 0) return ampli;
     else return -ampli;
 }
+//check p in between angle(bac) counter clockwise
+bool inAngle(pt a, pt b, pt c, pt p) {
+    T abp = orient(a, b, p), acp = orient(a, c, p), abc = orient(a, b, c);
+    if (abc < 0) swap(abp, acp);
+    return (abp >= 0 && acp <= 0) ^ (abc < 0);
+}
