@@ -38,8 +38,6 @@ int sgn ( T val){
   else if (val > EPS ) return 1;
   else return 0;
 }
-------------
-//sine role
 
 
 
