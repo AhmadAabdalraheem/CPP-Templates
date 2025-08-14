@@ -1,5 +1,5 @@
 use EPS for Comparing
-double --> 18 dig , ld --->20 dig
+double --> 17 dig , ld --->20 dig
 
 const ld EPS = 1e-9;
 
