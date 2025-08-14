@@ -17,6 +17,12 @@ typedef ld T;
 typedef complex<T> pt;
 #define x real()
 #define y imag()
+-------
+void takepoint(pt & p ){
+int xx , yy ;
+cin>>xx>>yy;
+p = { xx , yy } ;
+}
 --------------------------------------
 // theta with x axis
   cout<<arg(p) --> radian
