@@ -7,42 +7,45 @@ using namespace std;
 
 struct SparseTable {
     int n, LOG;
-    vector<vector<long long>> st;
+    vector<vector<long long>> sp;
 
     long long merge(long long a, long long b) {
-        return a + b; // غيرها: xor / min / max / gcd
+        return a + b; // غيرها: min / max / gcd / xor
     }
 
-    long long NEUTRAL = 0; // مهم: غيره حسب العملية
+    long long NEUTRAL = 0;
 
-    void build( vector<long long>& v ) {
+    void build(vector<long long>& v) {
         n = v.size();
         LOG = 32 - __builtin_clz(n);
-        st.assign(LOG, vector<long long>(n));
+
+        sp.assign(n, vector<long long>(LOG));
 
         for (int i = 0; i < n; i++)
-            st[0][i] = v[i];
+            sp[i][0] = v[i];
 
-        for (int j = 1; j < LOG; j++)
-            for (int i = 0; i + (1 << j) <= n; i++)
-                st[j][i] = merge(st[j - 1][i],
-                                 st[j - 1][i + (1 << (j - 1))]);
+        for (int pow = 1; pow < LOG; pow++) {
+            for (int i = 0; i + (1 << pow) <= n; i++) {
+                sp[i][pow] = merge(
+                    sp[i][pow - 1],
+                    sp[i + (1 << (pow - 1))][pow - 1]
+                );
+            }
+        }
     }
 
     long long query(int l, int r) {
         long long res = NEUTRAL;
 
-        for (int j = LOG - 1; j >= 0; j--) {
-            if ((1 << j) <= (r - l + 1)) {
-                res = merge(res, st[j][l]);
-                l += (1 << j);
+        for (int pow = LOG - 1; pow >= 0; pow--) {
+            if ((1 << pow) <= r - l + 1) {
+                res = merge(res, sp[l][pow]);
+                l += (1 << pow);
             }
         }
         return res;
     }
 };
-
-
 void solve() {
     // I Miss Her
     int n , q;
