@@ -1,15 +1,5 @@
-// multiply x by 2  i times
-int shift_left(int x,  int i )
-{
-	return x << i;
-}
-// divide x by 2  i times
-int right_left(int x,  int i )
-{
-	return x >> i;
-}
 //set ith bit
-int addbit(int x , int i )
+int setbit(int x , int i )
 {
 	return x | (1<<i);
 }
