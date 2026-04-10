@@ -3,17 +3,18 @@ int setbit(int x , int i )
 {
 	return x | (1<<i);
 }
-//unset ith bit
-int removebit(int x , int i )
-{
-	return x & (~(1<<i));
-}
+
 //check the existence of the ith bit
 bool checkbit(int x , int i )
 {
 	return (x>>i) & 1;
 }
 
+//unset ith bit
+int removebit(int x , int i )
+{
+	return x & (~(1<<i));
+}
 //flip the bit
 int flipbite(int x, int i )
 {
