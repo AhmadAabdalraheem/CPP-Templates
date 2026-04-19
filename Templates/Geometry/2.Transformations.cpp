@@ -1,21 +1,41 @@
-Translation
-pt translate(pt v, pt p) {return p+v;}
+#include <bits/stdc++.h>
+using namespace std;
 
-Scaling
-pt scale(pt c,ld factor, pt p) {
-  pt ret = p-c;
-  ret = factor*ret;
-  return c + ret;
+typedef long double ld;
+typedef ld T;
+
+struct pt{
+    T x, y;
+    pt operator+(pt p){ return {x + p.x, y + p.y}; }
+    pt operator-(pt p){ return {x - p.x, y - p.y}; }
+    pt operator*(T d){ return {x * d, y * d}; }
+};
+
+// translate point by vector v
+pt translate(pt v, pt p){
+    return p + v;
 }
 
-Rotation
-pt rot(pt p, pt c , ld a ) { // point , refrence ponint , alpha
-    pt v = p-c;
-    pt rotate ={ cos(a ) , sin(a)};
-  return c + rotate*v;
-  
+// scale point relative to center c
+pt scale(pt c, ld factor, pt p){
+    pt v = p - c;
+    return c + v * factor;
 }
-//which if using complex can be simplified to just
-pt rot(pt p, double a) {return p * polar(1.0, a);}
-//the rotation by 90◦ 
-pt perp(pt p) {return {-p.y, p.x};}
+
+// rotate point around origin
+pt rot(pt p, ld a){
+    return {
+        p.x * cos(a) - p.y * sin(a),
+        p.x * sin(a) + p.y * cos(a)
+    };
+}
+
+// rotate point around center c
+pt rot(pt p, pt c, ld a){
+    return c + rot(p - c, a);
+}
+
+// perpendicular vector (90 degrees CCW)
+pt perp(pt p){
+    return {-p.y, p.x};
+}
