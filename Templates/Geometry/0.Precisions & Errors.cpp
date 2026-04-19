@@ -13,4 +13,10 @@ fabs--> float abs
 if( fabs(a - b ) < EPS) {
   تمام
 }
+// sign function
 
+int sgn(ld val){
+    if(val < -EPS) return -1;
+    if(val > EPS) return 1;
+    return 0;
+}
