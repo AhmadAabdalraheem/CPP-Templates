@@ -1,54 +1,39 @@
-// point representation
+#include <bits/stdc++.h>
+using namespace std;
+
+typedef long double ld;
 typedef ld T;
-	struct pt {
-		T x,y;
-		//basic operations
-		pt operator+(pt p) {return {x+p.x, y+p.y};}
-		pt operator-(pt p) {return {x-p.x, y-p.y};}
-		pt operator*(T d) {return {x*d, y*d};}
-		pt operator/(T d) {return {x/d, y/d};} // only for floating point
-	};
-  //example of usage
-	// int a, b ;
-	// cin>>a >> b;
-	// pt p1 = {a, b};    warning for diffrent data type not error
-or add these definitons
-typedef ld T;
-typedef complex<T> pt;
-#define x real()
-#define y imag()
--------
-void takepoint(pt & p ){
-int xx , yy ;
-cin>>xx>>yy;
-p = { xx , yy } ;
-}
---------------------------------------
-// theta with x axis
-  cout<<arg(p) --> radian
-  // transfer to degree
-  arg(p) * (180/ M_PI) --> PI Value
-// atan2
-atan2(b,a) 
-----------------------------------------
-// Functions
-sq -- > distance from point to (0,0)  // r ^ 2
-T sq (pt p){
-  return p.x * p.x + p.y * p.y;
+
+// point structure
+struct pt {
+    T x, y;
+
+    // vector addition
+    pt operator+(pt p){ return {x + p.x, y + p.y}; }
+
+    // vector subtraction
+    pt operator-(pt p){ return {x - p.x, y - p.y}; }
+
+    // multiply by scalar
+    pt operator*(T d){ return {x * d, y * d}; }
+
+    // divide by scalar
+    pt operator/(T d){ return {x / d, y / d}; }
+};
+
+// read integer point and convert
+void takepoint(pt &p){
+    int x, y;
+    cin >> x >> y;
+    p = {x, y};
 }
 
-cout<<abs(p)---> magnitude (r) not removing the negative value
-
-int sgn ( T val){  
-  if(val < -EPS)return -1;
-  else if (val > EPS ) return 1;
-  else return 0;
+// squared distance from origin
+T sq(pt p){
+    return p.x * p.x + p.y * p.y;
 }
 
-
-
-
-
-
-
-
+// length of vector
+ld length(pt p){
+    return sqrtl(sq(p));
+}
