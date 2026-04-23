@@ -6,7 +6,7 @@ const int N = 200005;
 
 int to[N];
 int n;
-
+// works from one start node and gets the cycle in this component
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
