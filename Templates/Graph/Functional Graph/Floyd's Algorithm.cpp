@@ -28,21 +28,18 @@ pair<int,int>floyd(int node) {
 
     int cycle_start = slow;
 
-    // step 3: find cycle length
-    int cycle_length = 1;
+    // build cycle path
+    vector<int> cycle;
+    cycle.push_back(cycle_start);
+
     int cur = to[cycle_start];
-    
-    vector<int>path; // the nodes that make the cycle
-    
     while (cur != cycle_start) {
-        path.push_back(cur);
+        cycle.push_back(cur);
         cur = to[cur];
-        cycle_length++;
     }
-    for (auto it : path) {
-        ans[it] = cycle_length;
-        visited[it] =true;
-    }
-    return{ cycle_start, cycle_length};
+
+    int cycle_length = cycle.size();
+
+    return {cycle_start, cycle_length};
 }
 
