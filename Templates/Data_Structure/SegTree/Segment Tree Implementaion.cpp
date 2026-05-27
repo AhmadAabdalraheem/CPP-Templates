@@ -1,46 +1,8 @@
 #include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
 #pragma GCC optimize("Ofast")
 #define Fast  ios_base::sync_with_stdio(false), cin.tie(nullptr), cout.tie(nullptr);
 using namespace std;
-using namespace __gnu_pbds;
 #define ll long long
-#define ld long double
-#define ull unsigned long long
-#define endl '\n'
-#define yes {cout << "YES"<<endl; return ;}
-#define no {cout << "NO"<<endl; return ;}
-#define mun {cout << "-1\n";return;}
-#define all(v) v.begin(), v.end()
-#define clr(x, val)	memset((x), (val), sizeof(x))
-#define allr(v) v.rbegin(), v.rend()
-#define make_unique(v) v.erase(unique(all(v)), v.end());
-#define PI acos(-1)
-//order_of_key(x): returns number of elements strictly less than x
-//find_by_order(k): returns iterator to the k-th smallest element (0-indexed)
-
-ll gcd(ll a, ll b)      {if (b == 0) return a; return gcd(b, a % b);} //O(log min(a, b))
-ll lcmm(ll a,ll b)     {return a/gcd(a,b)*b;}
-ll summ(ll n)         {return  n * ( n+1)/2;}
-
-ll Abdalraheem () {
-    Fast
-    return 0;
-}
-vector<int> dx  = { 1 , -1 , 0 , 0 ,  1 ,  1 , -1 , -1 };
-vector<int> dy  = { 0 ,  0 , 1 , -1 ,  1 , -1 , 1 , -1 };
-vector<int> dxh = {-2 , -2 , 2 , 2 , 1 , 1 , -1 , -1};
-vector<int> dyh = {-1 , 1 , -1 , 1 , -2 , 2 , -2 , 2};
-
-string dir = "DURL";
-const int N =101;
-const ll M =7490;
-const ll oo = 2e18;
-const int MOD = 1e9+7;
-const ll mod = 24;
-#define int ll
-
 
 template<typename T>
 struct SegmentTree {
