@@ -93,6 +93,18 @@ struct SegmentTree {
         return query(0, 0, n - 1, l, r);
     }
 
+    void print(int node, int lx, int rx){
+
+        cout << "node = " << node
+             << " range = [" << lx << "," << rx << "] "
+             << "value = " << seg[node] << endl;
+
+        if(lx == rx)
+            return;
+
+        print(LT, lx, mid);
+        print(RT, mid + 1, rx);
+    }
 #undef mid
 #undef LT
 #undef RT
