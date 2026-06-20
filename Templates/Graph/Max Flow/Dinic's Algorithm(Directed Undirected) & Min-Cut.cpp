@@ -3,35 +3,39 @@ using namespace std;
 
 /*
  * -----------------------------------------------------------------------------
- * TEMPLATE: Dinic's Algorithm with Min-Cut Extraction
+ * TEMPLATE: Dinic's Algorithm with Hybrid (Directed/Undirected) & Min-Cut
  * -----------------------------------------------------------------------------
- * Time Complexity : O(V^2 * E) for Max Flow.
- * - Extra O(V + E) to extract the Min-Cut edges using a final BFS.
+ * Time Complexity : O(V^2 * E) for Max Flow / Min Cut.
  * Space Complexity: O(V + E)
  * -----------------------------------------------------------------------------
  */
 
-struct DinicWithMinCut {
+struct Dinic {
     struct Edge {
         int from;
         int to;
         long long cap;
-        long long original_cap; // Needed to track original edges during the cut extraction
-        int rev;
+        int rev;          // Index of the reverse edge in adj[to]
+        bool is_original; // True if this edge was explicitly added by the user
     };
 
     int n;
     vector<vector<Edge>> adj;
     vector<int> level;
     vector<int> ptr;
-    vector<bool> visited_in_cut; // To mark nodes belonging to the Source (S) side of the cut
+    vector<bool> visited_in_cut;
 
-    DinicWithMinCut(int n) : n(n), adj(n), level(n), ptr(n), visited_in_cut(n) {}
+    // Constructor to initialize the graph with N vertices
+    Dinic(int n) : n(n), adj(n), level(n), ptr(n), visited_in_cut(n) {}
 
-    // Add a directed edge from 'u' to 'v' with capacity 'cap'
-    void add_edge(int u, int v, long long cap) {
-        adj[u].push_back({u, v, cap, cap, (int)adj[v].size()});
-        adj[v].push_back({v, u, 0, 0, (int)adj[u].size() - 1}); // Residual reverse edge starts with 0
+    /*
+     * add_edge function:
+     * - For Directed Graphs  : Set 'undirected = false' (Default). Reverse capacity is 0.
+     * - For Undirected Graphs: Set 'undirected = true'. Reverse capacity equals forward capacity.
+     */
+    void add_edge(int u, int v, long long cap, bool undirected = false) {
+        adj[u].push_back({u, v, cap, (int)adj[v].size(), true});
+        adj[v].push_back({v, u, (undirected ? cap : 0), (int)adj[u].size() - 1, undirected});
     }
 
     // BFS to build the level graph
@@ -69,27 +73,26 @@ struct DinicWithMinCut {
         return 0;
     }
 
-    // Main function to calculate Maximum Flow
+    // Main function to calculate Maximum Flow (which equals Min Cut Value)
     long long get_max_flow(int s, int t) {
         long long flow = 0;
         while (bfs(s, t)) {
             fill(ptr.begin(), ptr.end(), 0);
-            while (long long pushed = dfs(s, t, 2e18)) {
+            while (long long pushed = dfs(s, t, 2e18)) { // 2e18 behaves as Infinity
                 flow += pushed;
             }
         }
         return flow;
     }
 
-    // Function to extract the edges that form the Minimum Cut
+    // Function to extract the actual edges that form the Minimum Cut
     vector<pair<int, int>> get_min_cut_edges(int s) {
         fill(visited_in_cut.begin(), visited_in_cut.end(), false);
-        
-        // 1. BFS from source traversing only edges with remaining residual capacity (cap > 0)
         queue<int> q;
         q.push(s);
         visited_in_cut[s] = true;
 
+        // 1. Traverse reachable nodes from source using remaining residual capacity (cap > 0)
         while (!q.empty()) {
             int u = q.front();
             q.pop();
@@ -101,13 +104,12 @@ struct DinicWithMinCut {
             }
         }
 
-        // 2. Identify cut edges: original edges going from a visited node to an unvisited node
+        // 2. Identify cut edges (Original edges going from a visited node to an unvisited node)
         vector<pair<int, int>> cut_edges;
         for (int u = 0; u < n; u++) {
             if (visited_in_cut[u]) {
                 for (auto &edge : adj[u]) {
-                    // Ensure it's an original network edge and goes to the unvisited side (T)
-                    if (edge.original_cap > 0 && !visited_in_cut[edge.to]) {
+                    if (edge.is_original && !visited_in_cut[edge.to]) {
                         cut_edges.push_back({u, edge.to});
                     }
                 }
@@ -117,41 +119,48 @@ struct DinicWithMinCut {
     }
 };
 
-void solve(){
+void solve() {
     int n, m;
     if (!(cin >> n >> m)) return;
 
     int source = 0;
     int sink = n - 1;
 
-    DinicWithMinCut flow(n);
+    Dinic flow(n);
 
     for (int i = 0; i < m; i++) {
         int u, v;
-        long long cap;
-        cin >> u >> v >> cap;
-        // Note: If the problem is 1-indexed, use: flow.add_edge(u-1, v-1, cap);
-        flow.add_edge(u, v, cap);
+        long long cap = 1; // Default capacity for unweighted graph (like Police Chase)
+        
+        // If the problem provides edge capacities, uncomment the next line:
+        // cin >> u >> v >> cap;
+        cin >> u >> v;
+
+        // Pass 'true' if the graph is Undirected, or 'false' if Directed
+        flow.add_edge(u - 1, v - 1, cap, true); 
     }
 
-    // 1. Calculate Max Flow (which equals Min Cut Value)
+    // 1. Calculate Max Flow / Min Cut Value
     long long max_flow = flow.get_max_flow(source, sink);
-    cout << "Max Flow / Min Cut Value: " << max_flow << "\n";
+    cout << max_flow << "\n";
 
-    // 2. Extract and print the actual edges that need to be cut
+    // 2. Extract and print the actual edges forming the Min Cut
     vector<pair<int, int>> cut = flow.get_min_cut_edges(source);
-    
-    cout << "Edges to cut:\n";
     for (auto &edge : cut) {
-        cout << edge.first << " -> " << edge.second << "\n";
+        // Convert back to 1-indexed for the online judge output
+        cout << edge.first + 1 << " " << edge.second + 1 << "\n";
     }
 }
 
 int main() {
+    // Fast I/O for Competitive Programming
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     
     int t = 1;
+    // cin >> t; // Uncomment if the problem has multiple test cases
     while (t--) {
         solve();
     }
+    return 0;
+}
