@@ -28,6 +28,15 @@ struct Dinic {
     // Constructor to initialize the graph with N vertices
     Dinic(int n) : n(n), adj(n), level(n), ptr(n), visited_in_cut(n) {}
 
+    // Function to clear the graph between multiple testcases
+    void clear() {
+        fill(level.begin(), level.end(), -1);
+        fill(ptr.begin(), ptr.end(), 0);
+        for (int i = 0; i < n; ++i) {
+            adj[i].clear();
+        }
+    }
+
     /*
      * add_edge function:
      * - For Directed Graphs  : Set 'undirected = false' (Default). Reverse capacity is 0.
@@ -134,39 +143,83 @@ struct Dinic {
         }
         return cut_edges;
     }
+    // Struct to represent the output of edges that actually carried flow
+    struct FlowEdgeOutput {
+        int from, to;
+        long long flow;
+        long long max_cap;
+    };
+
+    // Function to extract all original edges that were used in the maximum flow
+    vector<FlowEdgeOutput> get_used_edges() {
+        vector<FlowEdgeOutput> used_edges;
+        for (int u = 0; u < n; u++) {
+            for (auto &edge : adj[u]) {
+                // We only care about real edges added by the user, not the artificial reverse ones
+                if (edge.is_original) {
+                    // The current capacity of the reverse edge holds exactly the amount of flow
+                    // that was pushed through this forward edge.
+                    long long actual_flow = adj[edge.to][edge.rev].cap;
+
+                    // Total original capacity is the remaining capacity + the pushed flow
+                    long long original_cap = edge.cap + actual_flow;
+
+                    // If flow was pushed through this edge, record it
+                    if (actual_flow > 0) {
+                        used_edges.push_back({edge.from, edge.to, actual_flow, original_cap});
+                    }
+                }
+            }
+        }
+        return used_edges;
+    }
 };
 
-void solve() {
-    int n, m;
-    if (!(cin >> n >> m)) return;
 
-    int source = 0;
-    int sink = n - 1;
+void solve(){
+    int vertices, edges;
+  cin >> vertices >> edges;
 
-    Dinic flow(n);
+    // Define source (S) as node 0 and sink (T) as the last node
+    int S = 0;
+    int T = vertices - 1;
 
-    for (int i = 0; i < m; i++) {
+    // 1. Initialize the Dinic solver object with the number of vertices
+    Dinic solver(vertices);
+
+    // 2. Read all edges dynamically via user input loop
+    for (int i = 0; i < edges; i++) {
         int u, v;
-        long long cap = 1; // Default capacity for unweighted graph (like Police Chase)
+        long long cap;
+        cin >> u >> v >> cap;
 
-        // If the problem provides edge capacities, uncomment the next line:
-        // cin >> u >> v >> cap;
-        cin >> u >> v;
-
-        // Pass 'true' if the graph is Undirected, or 'false' if Directed
-        flow.add_edge(u - 1, v - 1, cap, true);
+        // Add edge to the network
+        solver.add_edge(u, v, cap); // Default is directed. Use solver.add_edge(u, v, cap, true) if undirected.
     }
 
-    // 1. Calculate Max Flow / Min Cut Value
-    long long max_flow = flow.get_max_flow(source, sink);
-    cout << max_flow << "\n";
+    cout << "\n-------------------------------------------\n";
 
-    // 2. Extract and print the actual edges forming the Min Cut
-    vector<pair<int, int>> cut = flow.get_min_cut_edges(source);
-    for (auto &edge : cut) {
-        // Convert back to 1-indexed for the online judge output
-        cout << edge.first + 1 << " " << edge.second + 1 << "\n";
+    // 3. Compute and print the Maximum Flow
+    long long max_flow = solver.get_max_flow(S, T);
+    cout << "Maximum Flow from " << S << " to " << T << " is: " << max_flow << "\n";
+    cout << "-------------------------------------------\n";
+
+    // 4. Print all original edges that actually carried flow
+    cout << "Edges that carried flow:\n";
+    vector<Dinic::FlowEdgeOutput> flows = solver.get_used_edges();
+    for (auto &edge : flows) {
+        cout << "Edge (" << edge.from << " -> " << edge.to << ") | "
+             << "Flow: " << edge.flow << " / " << edge.max_cap << "\n";
     }
+    cout << "-------------------------------------------\n";
+
+    // 5. Print all original edges forming the Minimum Cut
+    cout << "Edges forming the Minimum Cut:\n";
+    vector<pair<int, int>> cut_edges = solver.get_min_cut_edges(S);
+    for (auto &edge : cut_edges) {
+        cout << "Cut Edge: " << edge.first << " -> " << edge.second << "\n";
+    }
+    cout << "-------------------------------------------\n";
 }
 
 int main() {
