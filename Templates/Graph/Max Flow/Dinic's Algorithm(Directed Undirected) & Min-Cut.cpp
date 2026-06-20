@@ -58,28 +58,37 @@ struct Dinic {
     }
 
     // DFS to find blocking flows in the level graph
-    long long dfs(int u, int t, long long pushed) {
-        if (pushed == 0 || u == t) return pushed;
-    
-        for (int &cid = ptr[u]; cid < adj[u].size(); ++cid) {
-            auto &edge = adj[u][cid];
-            int v = edge.to;
-        
-            if (level[u] + 1 != level[v] || edge.cap == 0) continue;
-        
-            long long tr = dfs(v, t, min(pushed, edge.cap));
-            if (tr == 0) {
-                // العقدة v مش هتوصلنا للـ sink في الـ phase ده، علم عليها عشان الـ BFS الجاي
-                level[v] = -1; 
-                continue;
-            }
-        
-            edge.cap -= tr;
-            adj[v][edge.rev].cap += tr;
-            return tr; 
-        }
-        return 0;
+   long long dfs(int u, int t, long long pushed) {
+    if (pushed == 0 || u == t) return pushed;
+
+    long long pushed_total = 0;
+
+    for (int &cid = ptr[u]; cid < adj[u].size(); ++cid) {
+        auto &edge = adj[u][cid];
+        int v = edge.to;
+
+        if (level[u] + 1 != level[v] || edge.cap == 0) continue;
+
+        long long tr = dfs(v, t, min(pushed, edge.cap));
+        if (tr == 0) continue; // Skip if this path can't reach the sink
+
+        // Update residual capacities
+        edge.cap -= tr;
+        adj[v][edge.rev].cap += tr;
+
+        pushed_total += tr;
+        pushed -= tr;
+
+        // If the remaining capacity coming into 'u' is exhausted, we can stop
+        if (pushed == 0) break;
     }
+
+    // Optional optimization: If this node couldn't push anything at all,
+    // isolate it so future DFS calls in this phase ignore it entirely.
+    if (pushed_total == 0) level[u] = -1;
+
+    return pushed_total;
+}
 
     // Main function to calculate Maximum Flow (which equals Min Cut Value)
     long long get_max_flow(int s, int t) {
