@@ -143,6 +143,57 @@ struct Dinic {
         }
         return cut_edges;
     }
+
+
+    //Function to reconstruct and return all individual paths from S to T
+    vector<vector<int>> get_max_flow_paths(int s, int t) {
+        vector<FlowEdgeOutput> used = get_used_edges();
+
+        // Build an internal adjacency list containing only used flow channels
+        // We use a pair of {to_node, flow_amount}
+        vector<vector<pair<int, long long>>> flow_adj(n);
+        for (auto &edge : used) {
+            flow_adj[edge.from].push_back({edge.to, edge.flow});
+        }
+
+        vector<vector<int>> paths;
+
+        // Keep extracting paths as long as there is remaining flow coming out of Source
+        while (true) {
+            vector<int> current_path;
+            int curr = s;
+            current_path.push_back(curr);
+
+            bool found_path = false;
+
+            // Reconstruct a single path using DFS-like step traversal
+            while (curr != t) {
+                bool advanced = false;
+                for (auto &edge : flow_adj[curr]) {
+                    if (edge.second > 0) { // If this branch still has remaining pushed flow
+                        edge.second--;     // Consume 1 unit of flow for this path
+                        curr = edge.first;
+                        current_path.push_back(curr);
+                        advanced = true;
+                        break;
+                    }
+                }
+                if (!advanced) break; // Dead end or no more flow out of this node
+            }
+
+            // If we successfully traced a path from S to T, save it
+            if (current_path.back() == t) {
+                paths.push_back(current_path);
+            } else {
+                break; // No more complete paths can be formed
+            }
+        }
+        return paths;
+    }
+
+
+
+
     // Struct to represent the output of edges that actually carried flow
     struct FlowEdgeOutput {
         int from, to;
@@ -204,6 +255,21 @@ void solve(){
     cout << "Maximum Flow from " << S << " to " << T << " is: " << max_flow << "\n";
     cout << "-------------------------------------------\n";
 
+    vector<vector<int>> routes = flow.get_max_flow_paths(0, n-1);
+
+    // 2. Print total number of days (which is the size of the paths vector)
+    //cout << routes.size() << "\n"; -->max flow
+
+    // 3. Print each route
+    for (auto &path : routes) {
+        cout << path.size() << "\n";
+        for (int i = 0; i < path.size(); i++) {
+            cout<<path[i] + 1 <<' ';
+        }
+        cout << "\n";
+
+
+    
     // 4. Print all original edges that actually carried flow
     cout << "Edges that carried flow:\n";
     vector<Dinic::FlowEdgeOutput> flows = solver.get_used_edges();
