@@ -60,15 +60,23 @@ struct Dinic {
     // DFS to find blocking flows in the level graph
     long long dfs(int u, int t, long long pushed) {
         if (pushed == 0 || u == t) return pushed;
+    
         for (int &cid = ptr[u]; cid < adj[u].size(); ++cid) {
             auto &edge = adj[u][cid];
             int v = edge.to;
+        
             if (level[u] + 1 != level[v] || edge.cap == 0) continue;
+        
             long long tr = dfs(v, t, min(pushed, edge.cap));
-            if (tr == 0) continue;
+            if (tr == 0) {
+                // العقدة v مش هتوصلنا للـ sink في الـ phase ده، علم عليها عشان الـ BFS الجاي
+                level[v] = -1; 
+                continue;
+            }
+        
             edge.cap -= tr;
             adj[v][edge.rev].cap += tr;
-            return tr;
+            return tr; 
         }
         return 0;
     }
@@ -131,13 +139,13 @@ void solve() {
     for (int i = 0; i < m; i++) {
         int u, v;
         long long cap = 1; // Default capacity for unweighted graph (like Police Chase)
-        
+
         // If the problem provides edge capacities, uncomment the next line:
         // cin >> u >> v >> cap;
         cin >> u >> v;
 
         // Pass 'true' if the graph is Undirected, or 'false' if Directed
-        flow.add_edge(u - 1, v - 1, cap, true); 
+        flow.add_edge(u - 1, v - 1, cap, true);
     }
 
     // 1. Calculate Max Flow / Min Cut Value
@@ -156,7 +164,7 @@ int main() {
     // Fast I/O for Competitive Programming
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-    
+
     int t = 1;
     // cin >> t; // Uncomment if the problem has multiple test cases
     while (t--) {
