@@ -144,7 +144,38 @@ struct Dinic {
         return cut_edges;
     }
 
+    // Function to extract the full node partition of the Minimum Cut
+    // Returns a pair: {S_side_nodes, T_side_nodes}
+    pair<vector<int>, vector<int>> get_cut_sides(int s) {
+        // 1. Run BFS to properly populate the visited_in_cut array based on residual capacities
+        fill(visited_in_cut.begin(), visited_in_cut.end(), false);
+        queue<int> q;
+        q.push(s);
+        visited_in_cut[s] = true;
 
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+            for (auto &edge : adj[u]) {
+                if (edge.cap > 0 && !visited_in_cut[edge.to]) {
+                    visited_in_cut[edge.to] = true;
+                    q.push(edge.to);
+                }
+            }
+        }
+
+        // 2. Separate all vertices based on whether they were reachable or not
+        vector<int> s_side, t_side;
+        for (int i = 0; i < n; i++) {
+            if (visited_in_cut[i]) {
+                s_side.push_back(i);
+            } else {
+                t_side.push_back(i);
+            }
+        }
+        return {s_side, t_side};
+    }
+    
     //Function to reconstruct and return all individual paths from S to T
     vector<vector<int>> get_max_flow_paths(int s, int t) {
         vector<FlowEdgeOutput> used = get_used_edges();
@@ -286,6 +317,20 @@ void solve(){
         cout << "Cut Edge: " << edge.first << " -> " << edge.second << "\n";
     }
     cout << "-------------------------------------------\n";
+
+        // 7. Extract and print S-side and T-side partitions
+    auto [s_side, t_side] = solver.get_cut_sides(S);
+
+    cout << "S-side components (Reachable from Source):\n";
+    for (int node : s_side) {
+        cout << node << " ";
+    }
+    
+    cout << "\n\nT-side components (Sink Side / Cut off):\n";
+    for (int node : t_side) {
+        cout << node << " ";
+    }
+    cout << "\n-------------------------------------------\n";
 }
 
 int main() {
