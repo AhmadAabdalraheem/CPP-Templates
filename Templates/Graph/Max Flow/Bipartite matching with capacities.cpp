@@ -81,6 +81,15 @@ struct Dinic {
         }
         return flow;
     }
+
+    void dfs_cover(int v, vector<bool>& visited, Dinic& flow) {
+    visited[v] = true;
+    for (auto& edge : flow.adj[v]) {
+        // Only traverse edges that still have remaining capacity
+        if (edge.cap - edge.flow > 0 && !visited[edge.to]) {
+            dfs_cover(edge.to, visited, flow);
+        }
+    }
 };
 
 void solve(){
@@ -148,6 +157,30 @@ void solve(){
                 // cout << " (Flow: " << edge.flow << ")"; 
                 cout << "\n";
             }
+        }
+    }
+    /////////////////////////////////////////////////////////
+    GRID
+    
+    // 4. Maximum Flow equals Minimum Moves required to clear the grid (Kőnig's Theorem)
+    int min_moves = flow.get_max_flow(s, t);
+    cout << min_moves << endl;
+
+    // 5. Run DFS from source to find the S-side of the Min Cut
+    vector<bool> visited(2 * n + 2, false);
+    dfs_cover(s, visited, flow);
+
+    // 6. Output the chosen moves based on Minimum Vertex Cover:
+    // - If a Row is NOT visited -> Choose it for removal
+    for (int i = 1; i <= n; i++) {
+        if (!visited[i]) {
+            cout << 1 << " " << i << "\n";
+        }
+    }
+    // - If a Column IS visited -> Choose it for removal
+    for (int j = 1; j <= n; j++) {
+        if (visited[n + j]) {
+            cout << 2 << " " << j << "\n";
         }
     }
 }
