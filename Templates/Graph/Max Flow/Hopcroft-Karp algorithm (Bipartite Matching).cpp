@@ -106,12 +106,12 @@ void solve(){
     
     cout << hk.get_max_matching() << "\n";
 
-    // لو مطلوب منك طباعة أزواج الـ matching المستخرجة:
-    // for (int u = 0; u < n; ++u) {
-    //     if (hk.match_l[u] != -1) {
-    //         cout << u << " matched with " << hk.match_l[u] << "\n";
-    //     }
-    // }
+     لو مطلوب منك طباعة أزواج الـ matching المستخرجة:
+     for (int u = 0; u < n; ++u) {
+         if (hk.match_l[u] != -1) {
+             cout << u << " matched with " << hk.match_l[u] << "\n";
+         }
+     }
 }
 
 int main() {
