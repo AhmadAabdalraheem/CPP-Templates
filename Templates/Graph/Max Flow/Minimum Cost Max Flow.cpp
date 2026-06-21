@@ -129,17 +129,68 @@ struct MinCostMaxFlowPrimalDual {
     }
 
 
-    vector<long long> get_final_edge_flows() {
-    vector<long long> flows(original_edges.size());
-    for (int u = 0; u < n; ++u) {
-        for (auto& edge : adj[u]) {
-            if (edge.id != -1) { // التأكد أن الإيدج أصلي وليس وهمياً أو عكسياً
-                flows[edge.id] = edge.flow;
+
+    // Decomposes the final flow network into individual path structures safely
+    vector<pair<long long, vector<int>>> get_flow_paths(int s, int t) {
+        vector<pair<long long, vector<int>>> paths;
+        // Operate on a temporary copy of the adjacency list to prevent modifying state
+        vector<vector<Edge>> temp_adj = adj;
+
+        while (true) {
+            vector<int> path;
+            vector<pair<int, int>> path_edges; // Stores {u, edge_index} to update flows later
+            vector<bool> visited(n, false);
+
+            // Internal lambda DFS to locate a path carrying positive flow
+            auto find_path = [&](auto& self, int u) -> long long {
+                if (u == t) return 1e18;
+                visited[u] = true;
+                path.push_back(u);
+
+                for (int i = 0; i < temp_adj[u].size(); ++i) {
+                    auto& edge = temp_adj[u][i];
+                    // Traverse forward original edges with positive remaining flow
+                    if (edge.id != -1 && edge.flow > 0 && !visited[edge.to]) {
+                        path_edges.push_back({u, i});
+                        long long bottleneck = self(self, edge.to);
+                        if (bottleneck > 0) {
+                            return min(bottleneck, edge.flow);
+                        }
+                        path_edges.pop_back();
+                    }
+                }
+                path.pop_back();
+                return 0;
+            };
+
+            long long current_flow = find_path(find_path, s);
+            if (current_flow == 0) break; // Break out when no more flow paths exist
+
+            path.push_back(t); // Append sink to complete path sequence
+            paths.push_back({current_flow, path});
+
+            // Consume/subtract flow along the found path from the temporary network
+            for (auto& [u, idx] : path_edges) {
+                temp_adj[u][idx].flow -= current_flow;
             }
         }
+        return paths;
     }
-    return flows;
-}
+
+   // بيرجع الفلو بتاع كل ايدج ب ترتيب الانبوت
+    vector<long long> get_final_edge_flows() {
+        vector<long long> flows(original_edges.size());
+        for (int u = 0; u < n; ++u) {
+            for (auto& edge : adj[u]) {
+                if (edge.id != -1) { // Process only valid forward edges
+                    flows[edge.id] = edge.flow;
+                }
+            }
+        }
+        return flows;
+    }
+    
+    
 };
 
 void solve() {
@@ -174,6 +225,23 @@ void solve() {
 
     cout << "Max Flow: " << flow << "\n";
     cout << "Min Cost: " << cost << "\n";
+
+
+    auto paths = flow.get_flow_paths(s,sink);
+
+    vector<int> assignment(n + 1);
+    for (auto&it : paths) {
+
+        vector<int>& path = it.second;
+        // path structure: source (path[0]) -> employee (path[1]) -> task+offset (path[2]) -> sink (path[3])
+        int employee = path[1];
+        int task = path[2] - tasks;
+        assignment[employee] = task;
+
+    }
+    for (int employee = 1; employee <= n; employee++) {
+        cout << employee << " " << assignment[employee] << endl;
+    }
 }
 
 int main() {
