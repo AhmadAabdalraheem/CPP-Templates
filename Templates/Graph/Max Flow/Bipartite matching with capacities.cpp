@@ -132,6 +132,24 @@ void solve(){
 
     // Output the Maximum Flow (which corresponds to the maximum matching with custom capacities)
     cout << dinic.get_max_flow(s, t) << "\n";
+
+    // Optional: Print the matched pairs between G1 and G2
+    for (int u = 1; u <= n; u++) {
+        for (auto& edge : dinic.adj[u]) {
+            // Check if the edge goes to G2 (nodes numbered from n + 1 to n + m) 
+            // and has positive flow (meaning it is selected)
+            if (edge.to > n && edge.to <= n + m && edge.flow > 0) {
+                int g1_node = u;
+                int g2_node = edge.to - n; // Subtract n to get the original index in G2
+                
+                cout << g1_node << " matched with " << g2_node;
+                
+                // If capacity can be greater than 1, you can also print how much flow passed
+                // cout << " (Flow: " << edge.flow << ")"; 
+                cout << "\n";
+            }
+        }
+    }
 }
 
 int main() {
