@@ -127,6 +127,19 @@ struct MinCostMaxFlowPrimalDual {
         }
         return {max_flow, min_cost};
     }
+
+
+    vector<long long> get_final_edge_flows() {
+    vector<long long> flows(original_edges.size());
+    for (int u = 0; u < n; ++u) {
+        for (auto& edge : adj[u]) {
+            if (edge.id != -1) { // التأكد أن الإيدج أصلي وليس وهمياً أو عكسياً
+                flows[edge.id] = edge.flow;
+            }
+        }
+    }
+    return flows;
+}
 };
 
 void solve() {
