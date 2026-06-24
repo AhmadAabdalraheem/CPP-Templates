@@ -4,26 +4,25 @@
 using namespace std;
 #define ll long long
 
-template<typename T>
 struct SegmentTree {
 #define mid ((lx + rx) >> 1)
 #define LT (node * 2 + 1)
 #define RT (node * 2 + 2)
 
     int n;
-    vector<T> seg;
+    vector<int> seg;
 
     SegmentTree(int sz) {
         n = sz;
         seg.assign(4 * n + 1, 0);
     }
     //change it depending on the problem
-    T merge(T a, T b) {
+    int merge(int a, int b) {
         return a + b;
     }
 
     //build the segment tree from array
-    void build(int node, int lx, int rx, vector<T>& a) {
+    void build(int node, int lx, int rx, vector<int>& a) {
 
         //leaf node
         if (lx == rx) {
@@ -40,14 +39,14 @@ struct SegmentTree {
         seg[node] = merge(seg[LT], seg[RT]);
     }
 
-    void build(vector<T>& a) {
+    void build(vector<int>& a) {
         build(0, 0, n - 1, a);
     }
 
     //point update
     //change value at idx to val
 
-    void update(int node, int lx, int rx, int idx, T val) {
+    void update(int node, int lx, int rx, int idx, int val) {
 
         //reached the wanted index
         if (lx == rx) {
@@ -66,12 +65,12 @@ struct SegmentTree {
         seg[node] = merge(seg[LT], seg[RT]);
     }
 
-    void update(int idx, T val) {
+    void update(int idx, int val) {
         update(0, 0, n - 1, idx, val);
     }
 
     //query on range [l , r]
-    T query(int node, int lx, int rx, int l, int r) {
+    int query(int node, int lx, int rx, int l, int r) {
 
         //no overlap
         if (rx < l || lx > r)
@@ -89,7 +88,7 @@ struct SegmentTree {
         );
     }
 
-    T query(int l, int r) {
+    int query(int l, int r) {
         return query(0, 0, n - 1, l, r);
     }
 
