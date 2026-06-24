@@ -3,8 +3,8 @@
 struct edge {
     int u ,  v ,  w;
 };
-bool cmp(edge x , edge y ) {
-    return x.w <y.w;
+bool cmp(const edge& x, const edge& y) {
+    return x.w < y.w;
 }
 vector<edge>v;
 
@@ -12,17 +12,20 @@ struct DSU {
    vector<int>parent,sizes;
     vector<int>mini,maxi;
     vector<int> component_edges;
+    int num_components;
 
     void init(int nn ) {
         parent.resize(nn+1);
         sizes.resize(nn+1);
         mini.resize(nn+1);
         maxi.resize(nn+1);
-        edges.resize(nn+1);
+        component_edges.resize(nn+1);
+
+        num_components = nn; // nn must be equal no number of nodes
         for (int i =1 ; i<=nn;i++) {
             parent[i] = i;
             sizes[i]=1;
-            edges[i]=0;
+            component_edges[i]=0;
             maxi[i]=i;
             mini[i]=i;
         }
@@ -37,12 +40,19 @@ struct DSU {
     int get_size(int u){
         return sizes[find_root(u)];
     }
+    bool is_same_set(int u, int v) {
+        return find_root(u) == find_root(v);
+    }
+    int count_components() { 
+        return num_components; 
+    }
     bool merge(int u , int v) {
  
         int root_u = find_root(u);
         int root_v = find_root(v);
  
         if (root_u == root_v) {
+            component_edges[root_u]++;
             return false ;
         }
  
@@ -57,16 +67,17 @@ struct DSU {
         component_edges[root_v] += component_edges[root_u] + 1;
  
         sizes[root_v] += sizes[root_u];
+        num_components--;
         return true;
     }
 
 };
-    int kruskal(int n, vector<edge>& edge_list) {  
+    long long kruskal(int n, vector<edge>& edge_list) {  
     sort(edge_list.begin(), edge_list.end(), cmp); 
     DSU dsu;
     dsu.init(n);
     
-    int total_weight = 0;
+    long long total_weight = 0;
     for (auto [u, v, w] : edge_list) {
         if (dsu.merge(u, v)) {
             total_weight += w;
