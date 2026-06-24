@@ -11,7 +11,8 @@ vector<edge>v;
 struct DSU {
    vector<int>parent,sizes;
     vector<int>mini,maxi;
-    vector<int>edges;
+    vector<int> component_edges;
+
     void init(int nn ) {
         parent.resize(nn+1);
         sizes.resize(nn+1);
@@ -53,26 +54,26 @@ struct DSU {
         mini[root_v] = min(mini[root_v], mini[root_u]);
         maxi[root_v] = max(maxi[root_v], maxi[root_u]);
         
-        edges[root_v] += edges[root_u];;
+        component_edges[root_v] += component_edges[root_u] + 1;
  
         sizes[root_v] += sizes[root_u];
         return true;
     }
 
-
-    int kruskal(vector <edge> edges) {  //MST
-        sort(all(edges),cmp);
-        int total= 0;
-
-        for (auto [u,v,w] : edges) {
-            if (merge(u,v)) {
-                total += w;
-            }
-        }
-        return total;
-    }
-
 };
+    int kruskal(int n, vector<edge>& edge_list) {  
+    sort(edge_list.begin(), edge_list.end(), cmp); 
+    DSU dsu;
+    dsu.init(n);
+    
+    int total_weight = 0;
+    for (auto [u, v, w] : edge_list) {
+        if (dsu.merge(u, v)) {
+            total_weight += w;
+        }
+    }
+    return total_weight;
+    }
 
 void solve() {
    
