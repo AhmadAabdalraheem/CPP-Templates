@@ -183,5 +183,11 @@ int main() {
         cout << '\n';
     }
 
+    graph.build_condensation_graph();
+
+    cout << "Total SCCs found: " << graph.scc_count << '\n';
+    cout << "Are nodes 1 and 2 in the same SCC? " << (graph.same_scc(1, 2) ? "Yes" : "No") << '\n';
+    cout << "Size of SCC 0: " << graph.scc_size[0] << '\n';
+
     return 0;
 }
