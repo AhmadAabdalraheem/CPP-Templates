@@ -15,7 +15,7 @@ struct LCA {
         n = num_nodes;
         max_log = ceil(log2(n)) + 1;
         depth.assign(n + 1, 0);
-        up.assign(n + 1, vector<int>(max_log, 0));
+        up.assign(n + 1, vector<int>(max_log, -1));
     }
 
     void dfs(int u, int p, const vector<vector<int>>& adj) {
