@@ -65,3 +65,8 @@ namespace combinatorics
     }
 };
 using namespace combinatorics;
+
+
+void solve(){
+    init( 1e6 , 1e9+7)
+}
