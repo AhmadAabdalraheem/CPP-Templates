@@ -3,10 +3,7 @@ using namespace std;
 
 using ll = long long;
 
-// =========================================================================
-// CONFIGURATION BLOCK
-// CHANGE THESE: Update mod and root based on the problem's requirements.
-// =========================================================================
+
 int mod = 998244353; 
 int root = 3; 
 
@@ -85,6 +82,7 @@ vector<int> conv(const vector<int> &a, const vector<int> &b, int max_degree) {
 }
 
 // Main Polynomial Exponentiation Function
+// O ( N * LOG^2 (N))
 vector<int> poly_pow(vector<int> a, long long k, int max_degree) {
     if (max_degree < 0) return {};
     
