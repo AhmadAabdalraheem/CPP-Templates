@@ -78,9 +78,7 @@ vector<ll> multiply(vector<ll> const& a, vector<ll> const& b) {
     }
     
     // Trim trailing zeros to keep the size accurate
-    while (result.size() > 1 && result.back() == 0) {
-        result.pop_back();
-    }
+    //result.resize(a.size() + b.size() - 1);
     
     return result;
 }
