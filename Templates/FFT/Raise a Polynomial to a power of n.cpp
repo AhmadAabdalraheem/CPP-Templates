@@ -83,6 +83,7 @@ vector<int> conv(const vector<int> &a, const vector<int> &b, int max_degree) {
 
 // Main Polynomial Exponentiation Function
 // O ( N * LOG^2 (N))
+//CAN BE USED IN FFT OR NTT
 vector<int> poly_pow(vector<int> a, long long k, int max_degree) {
     if (max_degree < 0) return {};
     
