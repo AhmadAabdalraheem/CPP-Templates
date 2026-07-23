@@ -4,16 +4,15 @@ using namespace std;
 using ll = long long;
 
 
-//some famous mods
-// 998244353
-// 469762049
-// 167772161
-// 754974721
+// Some famous NTT-friendly primes:
+// 998244353  = (119 << 23) + 1  (root = 3 or 62)
+// 469762049  = (7 << 26) + 1    (root = 3)
+// 167772161  = (5 << 25) + 1    (root = 3)
+// 754974721  = (45 << 24) + 1   (root = 11)
 
 //mod -1 must have powers of two sufficient for array size 
-//const ll mod = (119 << 23) + 1, root = 62; // = 998244353
 
-// For p < 2^30 there is also e.g. 5 << 25 , 7 << 26, 479 << 21
+// For p < 2^30 there is also e.g. , , 479 << 21
 // and 483 << 21 (same root). The last two are > 10^9.
 
 
