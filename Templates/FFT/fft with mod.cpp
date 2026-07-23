@@ -1,10 +1,35 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// --- Fast I/O & Types ---
 #define fast_io ios_base::sync_with_stdio(false); cin.tie(NULL);
 using ll = long long;
 using vi = vector<int>;
+
+
+// polynomial multiplication under an arbitrary modulo (often referred to as Any-Mod FFT
+
+/*
+ * ============================================================================
+ * 📦 TEMPLATE OVERVIEW: Any-Mod FFT (KACTL convMod)
+ * ============================================================================
+ *
+ * 🎯 USAGE:
+ *  - Arbitrary Modulo Convolution: Multiplies two polynomials (integer arrays)
+ *    modulo M, where M does NOT need to be an NTT-friendly prime (e.g., works
+ *    for M = 10^9 + 7, composite numbers, or non-standard primes).
+ *  - High-performance counting, DP optimizations, and generating functions
+ *    under arbitrary modular arithmetic.
+ *
+ * ⚠️ LIMITATIONS & CAVEATS:
+ *  - Array Size & Modulo Bound: Uses double precision. Safe for polynomial
+ *    sizes up to N ≈ 10^5 with modulus M ≈ 10^9. Larger sizes/moduli may 
+ *    suffer from double-precision floating-point rounding errors.
+ *  - Constant Factor: Runs 4 FFT transforms per call. Roughly 2x-3x slower 
+ *    than standard NTT on 998244353.
+ *  - Input Range: Elements in input vectors a and b must be in [0, M - 1].
+ *  - Time Complexity: O(N log N) time, O(N) space.
+ * ============================================================================
+ */
 
 // --- KACTL Arbitrary Modulo FFT ---
 typedef complex<double> C;
