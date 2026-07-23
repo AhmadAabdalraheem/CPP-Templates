@@ -15,7 +15,12 @@ using ll = long long;
 // For p < 2^30 there is also e.g. , , 479 << 21
 // and 483 << 21 (same root). The last two are > 10^9.
 
-
+// to check if the mod is sufficient for the size
+bool is_sufficient(long long M, int n) {
+    // n is the padded power-of-two size (1 << B)
+    int max_k = __builtin_ctzll(M - 1);
+    return (1LL << max_k) >= n;
+}
 // Global settings initialized dynamically or manually
 ll mod = 998244353; 
 int root = 3; 
