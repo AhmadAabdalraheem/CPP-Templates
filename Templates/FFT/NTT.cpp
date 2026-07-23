@@ -5,8 +5,8 @@ using ll = long long;
 
 
 // Some famous NTT-friendly primes:
-// 998244353  = (119 << 23) + 1  (root = 3 or 62)
-// 469762049  = (7 << 26) + 1    (root = 3)
+// 998244353  = (119 << 23) + 1  (root = 3 or 62)--> limit n = 8e6
+// 469762049  = (7 << 26) + 1    (root = 3)   -->limit n = 6e7
 // 167772161  = (5 << 25) + 1    (root = 3)
 // 754974721  = (45 << 24) + 1   (root = 11)
 
@@ -124,6 +124,7 @@ int main() {
     // Dynamic root setup at runtime based on mod configuration
     mod = 998244353;
     root = generator(); 
+    //cout<<is_sufficient(mod,1e6)<<endl; //-->true;
 
     vector<int> poly_A = {1, 2, 3};
     vector<int> poly_B = {4, 5, 6};
