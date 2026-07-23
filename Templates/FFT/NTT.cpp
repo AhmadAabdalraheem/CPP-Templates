@@ -11,6 +11,12 @@ using ll = long long;
 // 754974721
 
 //mod -1 must have powers of two sufficient for array size 
+//const ll mod = (119 << 23) + 1, root = 62; // = 998244353
+
+// For p < 2^30 there is also e.g. 5 << 25 , 7 << 26, 479 << 21
+// and 483 << 21 (same root). The last two are > 10^9.
+
+
 // Global settings initialized dynamically or manually
 ll mod = 998244353; 
 int root = 3; 
@@ -30,6 +36,8 @@ int modpow(int b, int e, int m) {
 }
 
 // Automatically finds the primitive root for the active global 'mod'
+// Primitive Root of the mod of form 2^a * b + 1
+//(b<<a)+1 
 int generator() {
     vector<int> fact;
     int phi = mod - 1, n = phi;
