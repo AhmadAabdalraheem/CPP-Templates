@@ -3,6 +3,14 @@ using namespace std;
 
 using ll = long long;
 
+
+//some famous mods
+// 998244353
+// 469762049
+// 167772161
+// 754974721
+
+//mod -1 must have powers of two sufficient for array size 
 // Global settings initialized dynamically or manually
 ll mod = 998244353; 
 int root = 3; 
