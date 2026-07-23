@@ -5,7 +5,7 @@ using namespace std;
 using ll = long long;
 using vi = vector<int>;
 
-
+// if 1i is not defined add using namespace std::complex_literals;
 // polynomial multiplication under an arbitrary modulo (often referred to as Any-Mod FFT
 
 /*
