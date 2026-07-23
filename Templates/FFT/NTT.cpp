@@ -55,7 +55,7 @@ int generator() {
 void ntt(vector<int> &a) {
     int n = (int)a.size(), L = 31 - __builtin_clz(n);
     
-    vector<int> rt(2, 1); 
+    static vector<int> rt(2, 1); 
     for (int k = 2, s = 2; k < n; k *= 2, s++) { 
         rt.resize(n);
         
@@ -64,7 +64,7 @@ void ntt(vector<int> &a) {
         for (int i = k; i < 2 * k; ++i) 
             rt[i] = (ll)rt[i / 2] * z[i & 1] % mod;
     }
-    vector<int> rev(n);
+    static vector<int> rev(n);
     for (int i = 0; i < n; ++i) {
         rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
     }
