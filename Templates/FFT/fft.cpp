@@ -13,73 +13,72 @@ using cd = complex<ld>;
 
 // --- Fast Fourier Transform ---
 // invert = true performs Inverse FFT (IFFT)
-void fft(vector<cd>& a, bool invert) {
+void fft(vector<cd> & a, bool invert) {
     int n = a.size();
-    if (n == 1) return;
 
     // Bit-reversal permutation (Iterative in-place approach for performance)
     for (int i = 1, j = 0; i < n; i++) {
         int bit = n >> 1;
-        for (; j & bit; bit >>= 1) j ^= bit;
+        for (; j & bit; bit >>= 1)
+            j ^= bit;
         j ^= bit;
-        if (i < j) swap(a[i], a[j]);
+
+        if (i < j)
+            swap(a[i], a[j]);
     }
 
     // Cooley-Tukey Radix-2 Butterfly
+
     for (int len = 2; len <= n; len <<= 1) {
         ld ang = 2 * PI / len * (invert ? -1 : 1);
+
         cd wlen(cos(ang), sin(ang));
+
         for (int i = 0; i < n; i += len) {
-            cd w(1);
+            cd w(1.0, 0.0);
+
             for (int j = 0; j < len / 2; j++) {
-                cd u = a[i + j], v = a[i + j + len / 2] * w;
-                a[i + j] = u + v;
-                a[i + j + len / 2] = u - v;
+                cd u = a[i+j], v = a[i+j+len/2] * w;
+
+                a[i+j] = u + v;
+                a[i+j+len/2] = u - v;
                 w *= wlen;
             }
         }
     }
 
     if (invert) {
-        for (cd& x : a) {
+        for (cd & x : a)
             x /= n;
-        }
     }
 }
-
 // --- Polynomial Multiplication ---
 // Multiplies two vectors A and B, returning the coefficients of the resulting polynomial
-vector<ll> multiply(vector<ll> const& a, vector<ll> const& b) {
+vector<int> multiply(vector<int> const& a, vector<int> const& b) {
     vector<cd> fa(a.begin(), a.end()), fb(b.begin(), b.end());
-    
+
     // Find the smallest power of 2 that can hold the result size
     int n = 1;
-    while (n < a.size() + b.size()) {
+    while (n < (int)a.size() + (int)b.size())
         n <<= 1;
-    }
     fa.resize(n);
     fb.resize(n);
 
-    // Transform to point-value form
     fft(fa, false);
     fft(fb, false);
-    
-    // Point-wise multiplication
-    for (int i = 0; i < n; i++) {
+
+    for (int i = 0; i < n; i++)
         fa[i] *= fb[i];
-    }
-    
-    // Transform back to coefficient form
+
     fft(fa, true);
 
-    vector<ll> result(n);
-    for (int i = 0; i < n; i++) {
+    vector<int> result(n);
+    for (int i = 0; i < n; i++)
         result[i] = round(fa[i].real());
-    }
-    
+
     // Trim trailing zeros to keep the size accurate
     //result.resize(a.size() + b.size() - 1);
-    
+
     return result;
 }
 
