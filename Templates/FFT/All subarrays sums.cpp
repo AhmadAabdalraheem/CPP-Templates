@@ -6,6 +6,7 @@ using namespace std;
 
 //subarray sums -> prefix[j] - prefix[i]--> pair difference prefix 
 // ai must be positive 
+// if ai = 0 you have to count them ---> امشي علي الاراي وشوف في كام قيمة من العنصر اللي انت واقف عليه ظهر قبله و اجمع الفريكونسي 
 using ll = long long;
 
 int mod = 998244353; 
