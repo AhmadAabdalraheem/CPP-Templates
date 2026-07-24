@@ -9,7 +9,7 @@ const ld PI = acos(-1.0L);
 
 // Represents a complex number: standard std::complex can be slow on some platforms,
 // but a custom struct or the standard one usually suffices. Here is a fast standard usage.
-using cd = complex<ld>;
+using cd = complex<double>;
 
 // --- Fast Fourier Transform ---
 // invert = true performs Inverse FFT (IFFT)
@@ -30,7 +30,7 @@ void fft(vector<cd> & a, bool invert) {
     // Cooley-Tukey Radix-2 Butterfly
 
     for (int len = 2; len <= n; len <<= 1) {
-        ld ang = 2 * PI / len * (invert ? -1 : 1);
+        double ang = 2 * PI / len * (invert ? -1 : 1);
 
         cd wlen(cos(ang), sin(ang));
 
