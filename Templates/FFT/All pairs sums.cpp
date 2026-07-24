@@ -1,6 +1,64 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+// * 🎯 CORE CONCEPTS & FORMULAS:
+//  * ----------------------------------------------------------------------------
+//  *  Represent an array as a Polynomial (Frequency Array):
+//  *    P(x) = \sum freq[v] * x^v
+//  *    • Exponent of x represents the Value.
+//  *    • Coefficient of x represents the Frequency (count).
+//  *
+//  *  When multiplying polynomials:
+//  *    • Exponents add (values sum up): x^a * x^b = x^(a+b)
+//  *    • Coefficients multiply (number of ways to achieve that sum).
+//  *
+//  * ----------------------------------------------------------------------------
+//  * 1️⃣ PAIR SUMS FROM TWO DISTINCT ARRAYS: A[i] + B[j]
+//  *    • Formula: Ans(x) = P_A(x) * P_B(x)
+//  *    • Concept: Coefficient of x^S gives the total number of pairs summing to S.
+//  *
+//  * ----------------------------------------------------------------------------
+//  * 2️⃣ PAIR SUMS WITHIN THE SAME ARRAY: A[i] + A[j] (where i < j)
+//  *    • Formula: Ans(x) = ( P(x)^2 - P(x^2) ) / 2
+//  *    • Concept:
+//  *      1. P(x)^2 computes all ordered pairs, which introduces two issues:
+//  *         - Self-pairings: A[i] + A[i]
+//  *         - Double counting: both (i, j) and (j, i) are included.
+//  *      2. Subtract P(x^2) to remove self-pairings (A[i] + A[i]).
+//  *      3. Divide by 2 to remove order dependency and keep unique pairs (i < j).
+//  *
+//  * ----------------------------------------------------------------------------
+//  * 3️⃣ PAIR DIFFERENCES WITHIN THE SAME ARRAY: A[i] - A[j] (where i != j)
+//  *    • Formula: Ans(x) = P(x) * P_reversed(x)
+//  *    • Concept:
+//  *      Reverse the frequency array to convert subtraction into addition:
+//  *      P_rev(x) = \sum freq[v] * x^(MAX_VAL - v)
+//  *      Coefficient of x^(MAX_VAL + D) gives the number of pairs with difference D.
+//  *
+//  * ----------------------------------------------------------------------------
+//  * 4️⃣ TRIPLE SUMS WITHIN THE SAME ARRAY: A[i] + A[j] + A[k] (where i < j < k)
+//  *    • Formula (Inclusion-Exclusion / Newton's Sums):
+//  *      Ans(x) = ( P(x)^3  -  3 * P(x) * P(x^2)  +  2 * P(x^3) ) / 6
+//  *    • Concept:
+//  *      1. P(x)^3: All ordered triples including duplicates and self-triples.
+//  *      2. 3 * P(x) * P(x^2): Removes cases where at least 2 elements are equal.
+//  *      3. 2 * P(x^3): Corrects over-subtraction where all 3 elements are equal.
+//  *      4. Divide by 6 (3!): Converts ordered triples to strictly sorted (i < j < k).
+//  *
+//  * ----------------------------------------------------------------------------
+//  * ⚠️ CONSTRAINTS & CAVEATS:
+//  *  - Non-Negative Values Only: Input array values MUST be non-negative (x >= 0).
+//  *    If negative values exist, apply a constant +OFFSET to shift all values.
+//  *  - Division via Modulo Inverse: Divisions (/ 2) and (/ 6) must use modular inverse.
+//  * ============================================================================
+//  */
+
+
+
+
+
+
+
 using ll = long long;
 
 int mod = 998244353; 
@@ -82,13 +140,13 @@ vector<int> all_pairs_sums_two_arrays(const vector<int> &A, const vector<int> &B
     int max_A = *max_element(A.begin(), A.end());
     int max_B = *max_element(B.begin(), B.end());
     
-    vector<int> polyA(max_A + 1, 0);
-    vector<int> polyB(max_B + 1, 0);
+    vector<int> freqA(max_A + 1, 0);
+    vector<int> freqB(max_B + 1, 0);
     
-    for (int x : A) polyA[x]++;
-    for (int x : B) polyB[x]++;
+    for (int x : A) freqA[x]++;
+    for (int x : B) freqB[x]++;
     
-    return multiply(polyA, polyB);
+    return multiply(freqA, freqB);
 }
 
 // 2. All Pairs Sums within the SAME array: A[i] + A[j] for i < j
@@ -97,11 +155,11 @@ vector<long long> all_pairs_sums_same_array(const vector<int> &A) {
     if (A.size() < 2) return {};
     
     int max_A = *max_element(A.begin(), A.end());
-    vector<int> poly(max_A + 1, 0);
-    for (int x : A) poly[x]++;
+    vector<int> freq(max_A + 1, 0);
+    for (int x : A) freq[x]++;
     
     // Result includes identity pairings A[i]+A[i] and duplicates (A[i]+A[j] and A[j]+A[i])
-    vector<int> raw_conv = multiply(poly, poly);
+    vector<int> raw_conv = multiply(freq, freq);
     
     vector<long long> ans(raw_conv.size(), 0);
     for (size_t i = 0; i < raw_conv.size(); ++i) {
