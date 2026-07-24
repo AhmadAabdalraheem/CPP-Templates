@@ -2,7 +2,10 @@
 using namespace std;
 
 using ll = long long;
-
+// take or leave  subset
+// ao , a1 ,a2 ,a3
+//(  1  +  x ^ ao)
+//(leave   take ) 
 int mod = 998244353; 
 int root = 3; 
 
