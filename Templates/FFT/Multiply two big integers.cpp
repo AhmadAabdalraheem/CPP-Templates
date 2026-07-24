@@ -75,40 +75,35 @@ vector<int> multiply(const vector<int> &a, const vector<int> &b) {
 }
 
 string mul_two_big_int(const string &s1, const string &s2) {
-    if (s1 == "0" || s2 == "0") return "0";
-    
     int n = s1.size(), m = s2.size();
+
     vector<int> poly1(n), poly2(m);
-    
-    for (int i = 0; i < n; ++i) poly1[n - i - 1] = s1[i] - '0';
-    for (int i = 0; i < m; ++i) poly2[m - i - 1] = s2[i] - '0';
-
-    vector<int> ans = multiply(poly1, poly2); 
-    
-    long long carry = 0;
-    vector<int> digits;
-    digits.reserve(ans.size() + 10);
-    
-    for (size_t i = 0; i < ans.size() || carry > 0; ++i) {
-        long long cur = carry;
-        if (i < ans.size()) cur += ans[i];
-        digits.push_back(cur % 10);
-        carry = cur / 10;
+    for (int i = 0; i < n; ++i) {
+        poly1[n-i-1] = s1[i] - '0';
     }
 
-    while (digits.size() > 1 && digits.back() == 0) {
-        digits.pop_back();
+    for (int i = 0; i < m; ++i) {
+        poly2[m-i-1] = s2[i] - '0';
     }
 
-    string final_str = "";
-    final_str.reserve(digits.size());
-    for (int i = (int)digits.size() - 1; i >= 0; --i) {
-        final_str += (char)(digits[i] + '0');
+    vector<int> ans = multiply(poly1, poly2);
+    int k = ans.size();
+
+    for (int i = 0; i < k - 1; ++i) {
+        ans[i + 1] += ans[i] / 10;
+        ans[i] = ans[i] % 10;
     }
 
-    return final_str;
+    string final = to_string(ans[k - 1]);
+    for (int i = k - 2; i >= 0; --i) {
+        final += (char)(ans[i] + '0');
+    }
+
+    for (int i = 0; i < k; ++i) {
+        if(final[i] != '0') return final.substr(i);
+    }
+    return "0";
 }
-
 string power_of_big_int(string s, int p) {
     if (p == 0) return "1";
     if (s == "0") return "0";
