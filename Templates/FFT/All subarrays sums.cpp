@@ -1,6 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+
+
+//subarray sums -> prefix[j] - prefix[i]--> pair difference prefix 
 using ll = long long;
 
 int mod = 998244353; 
