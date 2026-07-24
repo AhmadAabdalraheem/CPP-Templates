@@ -5,6 +5,7 @@ using namespace std;
 
 
 //subarray sums -> prefix[j] - prefix[i]--> pair difference prefix 
+// ai must be positive 
 using ll = long long;
 
 int mod = 998244353; 
