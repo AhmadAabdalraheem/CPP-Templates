@@ -36,6 +36,16 @@ trie.minXorElement(x);       // Returns the ELEMENT that gives min XOR.
                              // Example:
                              // Trie = {3,5,10}, x = 6
                              // Returns 5.
+
+trie.countXorLess(x, k);          // Number of elements y such that (x ^ y) < k.
+                                  // Example:
+                                  // Trie = {1,2,3,4}, x = 5, k = 4
+                                  // 5^1 = 4  (No)
+                                  // 5^2 = 7  (No)
+                                  // 5^3 = 6  (No)
+                                  // 5^4 = 1  (Yes)
+                                  // Returns 1.
+                                  
 trie.clear();                // Clears the trie.
 
 Complexities
@@ -60,7 +70,7 @@ Notes
 
 struct BinaryTrie {
 
-    static const int LOG = 31;
+    static const int LOG = 41;
     static const int MAXN = 3200005;
 
     struct Node {
@@ -234,6 +244,91 @@ struct BinaryTrie {
                 ans |= (1LL * (bit ^ 1) << b);
                 cur = tr[cur].nxt[bit ^ 1];
             }
+        }
+
+        return ans;
+    }
+    int countXorLess(int x, int k) {
+
+        int cur = 0;
+        int ans = 0;
+
+        for (int b = LOG - 1; b >= 0; b--) {
+
+            if (cur == -1)
+                break;
+
+            int xb = (x >> b) & 1;
+            int kb = (k >> b) & 1;
+
+            if (kb == 0) {
+
+                // xor bit must be 0
+                cur = tr[cur].nxt[xb];
+            }
+            else {
+
+                // xor bit = 0
+                int same = tr[cur].nxt[xb];
+
+                if (same != -1)
+                    ans += tr[same].pref;
+
+                // continue with xor bit = 1
+                cur = tr[cur].nxt[xb ^ 1];
+            }
+        }
+
+        return ans;
+    }
+    int countXorAtLeast(int x, int k) {
+        return tr[0].pref - countXorLess(x, k);
+    }
+    int kth(int k) {
+        // 1-indexed
+        int cur = 0;
+        int ans = 0;
+
+        for (int b = LOG - 1; b >= 0; b--) {
+
+            int left = tr[cur].nxt[0];
+            int cntLeft = (left == -1 ? 0 : tr[left].pref);
+
+            if (k <= cntLeft) {
+                cur = left;
+            }
+            else {
+                k -= cntLeft;
+                ans |= (1 << b);
+                cur = tr[cur].nxt[1];
+            }
+        }
+
+        return ans;
+    }
+
+    int countLess(int x) {
+
+        int cur = 0;
+        int ans = 0;
+
+        for (int b = LOG - 1; b >= 0; b--) {
+
+            if (cur == -1) break;
+
+            int bit = (x >> b) & 1;
+
+            if (bit) {
+
+                int child = tr[cur].nxt[0];
+
+                if (child != -1)
+                    ans += tr[child].pref;
+
+                cur = tr[cur].nxt[1];
+            }
+            else
+                cur = tr[cur].nxt[0];
         }
 
         return ans;
