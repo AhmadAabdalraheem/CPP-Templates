@@ -14,14 +14,28 @@ trie.search(x);              // Returns true if x exists.
 
 trie.count(x);               // Number of occurrences of x.
 
-trie.maxXor(x);              // Maximum XOR value with x.
+trie.maxXor(x);              // Returns the maximum XOR VALUE with x.
+                             // Example:
+                             // Trie = {3,5,10}, x = 6
+                             // 6^3 = 5
+                             // 6^5 = 3
+                             // 6^10 = 12
+                             // Returns 12.
 
-trie.minXor(x);              // Minimum XOR value with x.
+trie.minXor(x);              // Returns the minimum XOR VALUE with x.
+                             // Example:
+                             // Trie = {3,5,10}, x = 6
+                             // Returns 3 (because 6^5 = 3).
 
-trie.maxXorElement(x);       // Element giving maximum XOR with x.
+trie.maxXorElement(x);       // Returns the ELEMENT that gives max XOR.
+                             // Example:
+                             // Trie = {3,5,10}, x = 6
+                             // Returns 10.
 
-trie.minXorElement(x);       // Element giving minimum XOR with x.
-
+trie.minXorElement(x);       // Returns the ELEMENT that gives min XOR.
+                             // Example:
+                             // Trie = {3,5,10}, x = 6
+                             // Returns 5.
 trie.clear();                // Clears the trie.
 
 Complexities
