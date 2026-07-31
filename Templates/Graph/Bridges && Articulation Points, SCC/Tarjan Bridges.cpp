@@ -4,73 +4,91 @@ using namespace std;
 
 /*
  * -----------------------------------------------------------------------------
- * TEMPLATE: Tarjan's Bridge Finding Algorithm (Cut Edges)
+ * TEMPLATE: Tarjan's Bridge Finding Algorithm (Multi-Edge Safe)
  * -----------------------------------------------------------------------------
  * Time Complexity : O(V + E) 
  * Space Complexity: O(V + E)
- * Indexing        : 1-indexed
+ * Indexing        : 1-indexed (supports 0-indexed if resized properly)
  * -----------------------------------------------------------------------------
- * Visual & Simplified Overview:
- *
- * A Bridge (or Cut Edge) is an edge whose removal increases the number of 
- * connected components in an undirected graph.
- *
- * Idea:
- * During DFS on an undirected graph, we track:
- * dfn[u] = when was u first visited?
- * low[u] = the earliest node reachable from u without using the edge to its parent.
- *
- * For an edge u -> v:
- * If (low[v] > dfn[u]), it means v and its descendants have absolutely NO way 
- * to reach u or any ancestor above u if we remove the edge (u, v).
- * Therefore, (u, v) is a BRIDGE.
+ * Fixes & Features:
+ * 1. Multi-Edge Safe: Uses edge_id instead of parent node 'p' to prevent false 
+ *    bridges when two nodes are connected by multiple edges.
+ * 2. Multi-Testcase Ready: Includes reset() to clean memory without re-instantiation.
  * -----------------------------------------------------------------------------
  */
 struct TarjanBridges {
+    struct Edge {
+        int to;
+        int id;
+    };
+
     int n;
+    int edge_count;
     int timer;
-    vector<vector<int>> adj;
+
+    vector<vector<Edge>> adj;
     vector<int> dfn;
     vector<int> low;
     
+    // Raw original edges storing {u, v}
+    vector<pair<int, int>> original_edges;
+    
     // Stores the discovered bridges as pairs of {u, v}
     vector<pair<int, int>> bridges;
+    vector<bool> is_bridge; // Flags bridge edges by their edge_id
 
-    TarjanBridges(int n)
-        : n(n),
-          timer(1),
-          adj(n + 1),
-          dfn(n + 1, -1),
-          low(n + 1, -1) {}
+    TarjanBridges(int n = 0) {
+        init(n);
+    }
+
+    void init(int n_nodes) {
+        n = n_nodes;
+        edge_count = 0;
+        timer = 1;
+        
+        adj.assign(n + 1, {});
+        dfn.assign(n + 1, -1);
+        low.assign(n + 1, -1);
+        
+        original_edges.clear();
+        bridges.clear();
+        is_bridge.clear();
+    }
 
     // Add an undirected edge between u and v
     void add_edge(int u, int v) {
-        adj[u].push_back(v);
-        adj[v].push_back(u);
+        adj[u].push_back({v, edge_count});
+        adj[v].push_back({u, edge_count});
+        original_edges.push_back({u, v});
+        is_bridge.push_back(false);
+        edge_count++;
     }
 
-    void dfs(int u, int p = -1) {
+    void dfs(int u, int p_edge_id = -1) {
         dfn[u] = low[u] = timer++;
 
-        for (int v : adj[u]) {
-            if (v == p) {
-                // Skip the direct edge leading back to the parent
+        for (const auto& edge : adj[u]) {
+            int v = edge.to;
+            int e_id = edge.id;
+
+            // Skip ONLY the specific edge we came from (handles parallel edges correctly)
+            if (e_id == p_edge_id) {
                 continue; 
             }
 
             if (dfn[v] == -1) {
                 // First time seeing v (Forward/Tree Edge)
-                dfs(v, u);
+                dfs(v, e_id);
 
-                // Update low of u based on the subtree rooted at v
+                // Update low of u based on subtree of v
                 low[u] = min(low[u], low[v]);
 
                 // Bridge Condition
                 if (low[v] > dfn[u]) {
-                    // v cannot reach u or anything higher without this edge
+                    is_bridge[e_id] = true;
                     bridges.push_back({u, v});
                 }
-            }
+            } 
             else {
                 // v is an ancestor already visited (Back Edge)
                 low[u] = min(low[u], dfn[v]);
@@ -78,7 +96,7 @@ struct TarjanBridges {
         }
     }
 
-    // Run the bridge inspection across all components
+    // Run the bridge inspection across all connected components
     void run() {
         for (int i = 1; i <= n; i++) {
             if (dfn[i] == -1) {
@@ -86,24 +104,29 @@ struct TarjanBridges {
             }
         }
     }
+
+    // Reset structure for a new testcase with 'new_n' nodes
+    void reset(int new_n) {
+        init(new_n);
+    }
 };
 
 int main() {
-    // Optimize standard I/O operations for competitive programming
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int vertices = 5;
+    int vertices = 4;
     TarjanBridges graph(vertices);
 
-    // Building an undirected graph with a bridge
-    graph.add_edge(1, 2);
-    graph.add_edge(2, 3);
-    graph.add_edge(3, 1); // Cycle {1, 2, 3}
+    // Testing Multi-Edges between 1 and 2
+    graph.add_edge(1, 2); // Edge ID 0
+    graph.add_edge(1, 2); // Edge ID 1 (Parallel edge! Neither should be a bridge)
 
-    graph.add_edge(3, 4); // This edge is a BRIDGE
+    // Bridge Edge
+    graph.add_edge(2, 3); // Edge ID 2 (Bridge!)
 
-    graph.add_edge(4, 5); // This edge is a BRIDGE
+    // Single edge to leaf node
+    graph.add_edge(3, 4); // Edge ID 3 (Bridge!)
 
     graph.run();
 
