@@ -8,6 +8,15 @@ using namespace std;
 
 // ============================================================================
 // BLACK BOX: Implicit Treap (Dynamic Array with Range Operations & Lazy Prop)
+// 2. TIME & SPACE COMPLEXITY:
+     // ------------------------
+     // - Insertion at index:        O(log N) expected
+     // - Erase at index / range:    O(log N) expected
+     // - Range Queries (Sum/Min/Max):O(log N) expected
+     // - Lazy Updates (Add/Replace): O(log N) expected
+     // - Subsegment Reversal:       O(log N) expected
+     // - Cyclic Shift:              O(log N) expected
+     // - Total Memory:              O(N + Q) allocated in a static vector pool.
 // ============================================================================
 static mt19937_64 rng(1337);
 const long long INF = 4e18;
