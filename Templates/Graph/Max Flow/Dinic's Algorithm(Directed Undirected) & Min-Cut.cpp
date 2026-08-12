@@ -258,9 +258,9 @@ struct Dinic {
 };
 
 
-void solve(){
+void solve() {
     int vertices, edges;
-  cin >> vertices >> edges;
+    cin >> vertices >> edges;
 
     // Define source (S) as node 0 and sink (T) as the last node
     int S = 0;
@@ -286,7 +286,7 @@ void solve(){
     cout << "Maximum Flow from " << S << " to " << T << " is: " << max_flow << "\n";
     cout << "-------------------------------------------\n";
 
-    vector<vector<int>> routes = flow.get_max_flow_paths(0, n-1);
+    vector<vector<int>> routes = solver.get_max_flow_paths(0, vertices-1);
 
     // 2. Print total number of days (which is the size of the paths vector)
     //cout << routes.size() << "\n"; -->max flow
@@ -301,36 +301,37 @@ void solve(){
 
 
     
-    // 4. Print all original edges that actually carried flow
-    cout << "Edges that carried flow:\n";
-    vector<Dinic::FlowEdgeOutput> flows = solver.get_used_edges();
-    for (auto &edge : flows) {
-        cout << "Edge (" << edge.from << " -> " << edge.to << ") | "
-             << "Flow: " << edge.flow << " / " << edge.max_cap << "\n";
-    }
-    cout << "-------------------------------------------\n";
+        // 4. Print all original edges that actually carried flow
+        cout << "Edges that carried flow:\n";
+        vector<Dinic::FlowEdgeOutput> flows = solver.get_used_edges();
+        for (auto &edge : flows) {
+            cout << "Edge (" << edge.from << " -> " << edge.to << ") | "
+                 << "Flow: " << edge.flow << " / " << edge.max_cap << "\n";
+        }
+        cout << "-------------------------------------------\n";
 
-    // 5. Print all original edges forming the Minimum Cut
-    cout << "Edges forming the Minimum Cut:\n";
-    vector<pair<int, int>> cut_edges = solver.get_min_cut_edges(S);
-    for (auto &edge : cut_edges) {
-        cout << "Cut Edge: " << edge.first << " -> " << edge.second << "\n";
-    }
-    cout << "-------------------------------------------\n";
+        // 5. Print all original edges forming the Minimum Cut
+        cout << "Edges forming the Minimum Cut:\n";
+        vector<pair<int, int>> cut_edges = solver.get_min_cut_edges(S);
+        for (auto &edge : cut_edges) {
+            cout << "Cut Edge: " << edge.first << " -> " << edge.second << "\n";
+        }
+        cout << "-------------------------------------------\n";
 
         // 7. Extract and print S-side and T-side partitions
-    auto [s_side, t_side] = solver.get_cut_sides(S);
+        auto [s_side, t_side] = solver.get_cut_sides(S);
 
-    cout << "S-side components (Reachable from Source):\n";
-    for (int node : s_side) {
-        cout << node << " ";
-    }
+        cout << "S-side components (Reachable from Source):\n";
+        for (int node : s_side) {
+            cout << node << " ";
+        }
     
-    cout << "\n\nT-side components (Sink Side / Cut off):\n";
-    for (int node : t_side) {
-        cout << node << " ";
+        cout << "\n\nT-side components (Sink Side / Cut off):\n";
+        for (int node : t_side) {
+            cout << node << " ";
+        }
+        cout << "\n-------------------------------------------\n";
     }
-    cout << "\n-------------------------------------------\n";
 }
 
 int main() {
