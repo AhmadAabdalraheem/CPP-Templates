@@ -119,7 +119,7 @@ void solve(){
     for (auto &i : a)
         cin >> i;
 
-    SegmentTree<int> seg(n);
+    SegmentTree seg(n);
 
     //build segment tree from array
     seg.build(a);
@@ -147,7 +147,7 @@ void solve(){
 
 
 signed main() {
-    Abdalraheem();
+  
     //freopen("sieve.in", "r", stdin);
     // freopen("where.out", "w", stdout);
     int tt = 1;
