@@ -42,4 +42,3 @@ pair<int,int>floyd(int node) {
 
     return {cycle_start, cycle_length};
 }
-
