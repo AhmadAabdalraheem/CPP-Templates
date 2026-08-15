@@ -18,7 +18,11 @@ struct Dinic {
         int rev;          // Index of the reverse edge in adj[to]
         bool is_original; // True if this edge was explicitly added by the user
     };
-
+    struct FlowEdgeOutput {
+        int from, to;
+        long long flow;
+        long long max_cap;
+    };
     int n;
     vector<vector<Edge>> adj;
     vector<int> level;
@@ -89,6 +93,8 @@ struct Dinic {
         pushed -= tr;
 
         // If the remaining capacity coming into 'u' is exhausted, we can stop
+        //ai optimization
+        //if (pushed_total == 0) level[u] = -1; // Optimization
         if (pushed == 0) break;
     }
 
@@ -175,78 +181,16 @@ struct Dinic {
         }
         return {s_side, t_side};
     }
-    
-    //Function to reconstruct and return all individual paths from S to T
-    vector<vector<int>> get_max_flow_paths(int s, int t) {
-        vector<FlowEdgeOutput> used = get_used_edges();
 
-        // Build an internal adjacency list containing only used flow channels
-        // We use a pair of {to_node, flow_amount}
-        vector<vector<pair<int, long long>>> flow_adj(n);
-        for (auto &edge : used) {
-            flow_adj[edge.from].push_back({edge.to, edge.flow});
-        }
-
-        vector<vector<int>> paths;
-
-        // Keep extracting paths as long as there is remaining flow coming out of Source
-        while (true) {
-            vector<int> current_path;
-            int curr = s;
-            current_path.push_back(curr);
-
-            bool found_path = false;
-
-            // Reconstruct a single path using DFS-like step traversal
-            while (curr != t) {
-                bool advanced = false;
-                for (auto &edge : flow_adj[curr]) {
-                    if (edge.second > 0) { // If this branch still has remaining pushed flow
-                        edge.second--;     // Consume 1 unit of flow for this path
-                        curr = edge.first;
-                        current_path.push_back(curr);
-                        advanced = true;
-                        break;
-                    }
-                }
-                if (!advanced) break; // Dead end or no more flow out of this node
-            }
-
-            // If we successfully traced a path from S to T, save it
-            if (current_path.back() == t) {
-                paths.push_back(current_path);
-            } else {
-                break; // No more complete paths can be formed
-            }
-        }
-        return paths;
-    }
-
-
-
-
-    // Struct to represent the output of edges that actually carried flow
-    struct FlowEdgeOutput {
-        int from, to;
-        long long flow;
-        long long max_cap;
-    };
-
-    // Function to extract all original edges that were used in the maximum flow
+    // Extract original edges that carried flow
     vector<FlowEdgeOutput> get_used_edges() {
         vector<FlowEdgeOutput> used_edges;
         for (int u = 0; u < n; u++) {
             for (auto &edge : adj[u]) {
-                // We only care about real edges added by the user, not the artificial reverse ones
                 if (edge.is_original) {
-                    // The current capacity of the reverse edge holds exactly the amount of flow
-                    // that was pushed through this forward edge.
                     long long actual_flow = adj[edge.to][edge.rev].cap;
-
-                    // Total original capacity is the remaining capacity + the pushed flow
                     long long original_cap = edge.cap + actual_flow;
 
-                    // If flow was pushed through this edge, record it
                     if (actual_flow > 0) {
                         used_edges.push_back({edge.from, edge.to, actual_flow, original_cap});
                     }
@@ -255,83 +199,148 @@ struct Dinic {
         }
         return used_edges;
     }
+
+    // Fast DFS-based path extraction with bottleneck computation O(E * V)
+    vector<pair<long long, vector<int>>> get_max_flow_paths(int s, int t) {
+        vector<FlowEdgeOutput> used = get_used_edges();
+        vector<vector<pair<int, long long>>> flow_adj(n);
+        for (auto &edge : used) {
+            flow_adj[edge.from].push_back({edge.to, edge.flow});
+        }
+
+        vector<pair<long long, vector<int>>> paths;
+
+        while (true) {
+            vector<int> path;
+            vector<bool> vis(n, false);
+
+            auto dfs_path = [&](auto& self, int u, long long cur_flow) -> long long {
+                if (u == t) {
+                    path.push_back(u);
+                    return cur_flow;
+                }
+                vis[u] = true;
+                path.push_back(u);
+
+                for (auto &edge : flow_adj[u]) {
+                    int v = edge.first;
+                    long long &rem_flow = edge.second;
+                    if (!vis[v] && rem_flow > 0) {
+                        long long pushed = self(self, v, min(cur_flow, rem_flow));
+                        if (pushed > 0) {
+                            rem_flow -= pushed;
+                            return pushed;
+                        }
+                    }
+                }
+                path.pop_back();
+                return 0;
+            };
+
+            long long pushed = dfs_path(dfs_path, s, 2e18);
+            if (pushed == 0) break;
+            paths.push_back({pushed, path});
+        }
+        return paths;
+    }
 };
 
 
-void solve() {
-    int vertices, edges;
-    cin >> vertices >> edges;
+void solve(){
+   // Built-in Test Graph: 6 Nodes (0 to 5)
+    // Source = 0, Sink = 5
+    int vertices = 6;
+    int S = 0, T = 5;
 
-    // Define source (S) as node 0 and sink (T) as the last node
-    int S = 0;
-    int T = vertices - 1;
+    Dinic flow(vertices);
 
-    // 1. Initialize the Dinic solver object with the number of vertices
-    Dinic solver(vertices);
+    // Edges with capacities:
+    // 0 -> 1 (cap 10), 0 -> 2 (cap 10)
+    // 1 -> 2 (cap 2),  1 -> 3 (cap 4), 1 -> 4 (cap 8)
+    // 2 -> 4 (cap 9)
+    // 3 -> 5 (cap 10), 4 -> 5 (cap 10)
+    flow.add_edge(0, 1, 10);
+    flow.add_edge(0, 2, 10);
+    flow.add_edge(1, 2, 2);
+    flow.add_edge(1, 3, 4);
+    flow.add_edge(1, 4, 8);
+    flow.add_edge(2, 4, 9);
+    flow.add_edge(3, 5, 10);
+    flow.add_edge(4, 5, 10);
 
-    // 2. Read all edges dynamically via user input loop
-    for (int i = 0; i < edges; i++) {
-        int u, v;
-        long long cap;
-        cin >> u >> v >> cap;
+    cout << "=================== DINIC TEST RUN ===================\n";
 
-        // Add edge to the network
-        solver.add_edge(u, v, cap); // Default is directed. Use solver.add_edge(u, v, cap, true) if undirected.
-    }
+    long long max_flow = flow.get_max_flow(S, T);
+    cout << "Maximum Flow from " << S << " to " << T << " is: " << max_flow << " (Expected: 19)\n";
+    cout << "-----------------------------------------------------\n";
 
-    cout << "\n-------------------------------------------\n";
-
-    // 3. Compute and print the Maximum Flow
-    long long max_flow = solver.get_max_flow(S, T);
-    cout << "Maximum Flow from " << S << " to " << T << " is: " << max_flow << "\n";
-    cout << "-------------------------------------------\n";
-
-    vector<vector<int>> routes = solver.get_max_flow_paths(0, vertices-1);
-
-    // 2. Print total number of days (which is the size of the paths vector)
-    //cout << routes.size() << "\n"; -->max flow
-
-    // 3. Print each route
-    for (auto &path : routes) {
-        cout << path.size() << "\n";
-        for (int i = 0; i < path.size(); i++) {
-            cout<<path[i] + 1 <<' ';
+    // 1. Extracted Routes
+    auto routes = flow.get_max_flow_paths(S, T);
+    cout << "Extracted Flow Paths:\n";
+    for (auto &[f_val, path] : routes) {
+        cout << "Path (Flow = " << f_val << "): ";
+        for (int i = 0; i < (int)path.size(); i++) {
+            cout << path[i] << (i == (int)path.size() - 1 ? "" : " -> ");
         }
         cout << "\n";
-
-
-    
-        // 4. Print all original edges that actually carried flow
-        cout << "Edges that carried flow:\n";
-        vector<Dinic::FlowEdgeOutput> flows = solver.get_used_edges();
-        for (auto &edge : flows) {
-            cout << "Edge (" << edge.from << " -> " << edge.to << ") | "
-                 << "Flow: " << edge.flow << " / " << edge.max_cap << "\n";
-        }
-        cout << "-------------------------------------------\n";
-
-        // 5. Print all original edges forming the Minimum Cut
-        cout << "Edges forming the Minimum Cut:\n";
-        vector<pair<int, int>> cut_edges = solver.get_min_cut_edges(S);
-        for (auto &edge : cut_edges) {
-            cout << "Cut Edge: " << edge.first << " -> " << edge.second << "\n";
-        }
-        cout << "-------------------------------------------\n";
-
-        // 7. Extract and print S-side and T-side partitions
-        auto [s_side, t_side] = solver.get_cut_sides(S);
-
-        cout << "S-side components (Reachable from Source):\n";
-        for (int node : s_side) {
-            cout << node << " ";
-        }
-    
-        cout << "\n\nT-side components (Sink Side / Cut off):\n";
-        for (int node : t_side) {
-            cout << node << " ";
-        }
-        cout << "\n-------------------------------------------\n";
     }
+    cout << "-----------------------------------------------------\n";
+
+    // 2. Edges that carried flow
+    cout << "Edges that carried flow:\n";
+    vector<Dinic::FlowEdgeOutput> flows = flow.get_used_edges();
+    for (auto &edge : flows) {
+        cout << "Edge (" << edge.from << " -> " << edge.to << ") | "
+             << "Flow: " << edge.flow << " / " << edge.max_cap << "\n";
+    }
+    cout << "-----------------------------------------------------\n";
+
+    // 3. Min Cut Edges
+    cout << "Edges forming the Minimum Cut:\n";
+    vector<pair<int, int>> cut_edges = flow.get_min_cut_edges(S);
+    for (auto &edge : cut_edges) {
+        cout << "Cut Edge: " << edge.first << " -> " << edge.second << "\n";
+    }
+    cout << "-----------------------------------------------------\n";
+
+    // 4. S-side and T-side Partitions
+    auto [s_side, t_side] = flow.get_cut_sides(S);
+
+    cout << "S-side components (Reachable from Source):\n";
+    for (int node : s_side) cout << node << " ";
+
+    cout << "\n\nT-side components (Cut off / Sink side):\n";
+    for (int node : t_side) cout << node << " ";
+    cout << "\n=====================================================\n";
+
+
+    // =================== DINIC TEST RUN ===================
+    // Maximum Flow from 0 to 5 is: 14 (Expected: 19)
+    // -----------------------------------------------------
+    // Extracted Flow Paths:
+    // Path (Flow = 4): 0 -> 1 -> 3 -> 5
+    // Path (Flow = 6): 0 -> 1 -> 4 -> 5
+    // Path (Flow = 4): 0 -> 2 -> 4 -> 5
+    // -----------------------------------------------------
+    // Edges that carried flow:
+    // Edge (0 -> 1) | Flow: 10 / 10
+    // Edge (0 -> 2) | Flow: 4 / 10
+    // Edge (1 -> 3) | Flow: 4 / 4
+    // Edge (1 -> 4) | Flow: 6 / 8
+    // Edge (2 -> 4) | Flow: 4 / 9
+    // Edge (3 -> 5) | Flow: 4 / 10
+    // Edge (4 -> 5) | Flow: 10 / 10
+    // -----------------------------------------------------
+    // Edges forming the Minimum Cut:
+    // Cut Edge: 1 -> 3
+    // Cut Edge: 4 -> 5
+    // -----------------------------------------------------
+    // S-side components (Reachable from Source):
+    // 0 1 2 4 
+    //
+    // T-side components (Cut off / Sink side):
+    // 3 5 
+    // =====================================================
 }
 
 int main() {
