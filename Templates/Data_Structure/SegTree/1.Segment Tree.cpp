@@ -1,7 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("Ofast")
-#define Fast  ios_base::sync_with_stdio(false), cin.tie(nullptr), cout.tie(nullptr);
-using namespace std;
 #define ll long long
 
 struct SegmentTree {
@@ -142,17 +139,5 @@ void solve(){
 
             cout << seg.query(l, r - 1) << endl;
         }
-    }
-}
-
-
-signed main() {
-  
-    //freopen("sieve.in", "r", stdin);
-    // freopen("where.out", "w", stdout);
-    int tt = 1;
-   // cin>>tt;
-    while (tt--) {
-        solve();
     }
 }
