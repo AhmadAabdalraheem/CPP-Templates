@@ -5,14 +5,16 @@ using ll = long long;
 
 
 // Some famous NTT-friendly primes:
+//// TIME COMPLEXITY  : O(N log N)
+// SPACE COMPLEXITY : O(N)
 // 998244353  = (119 << 23) + 1  (root = 3 or 62)--> limit n = 8e6
 // 469762049  = (7 << 26) + 1    (root = 3)   -->limit n = 6e7
 // 167772161  = (5 << 25) + 1    (root = 3)
 // 754974721  = (45 << 24) + 1   (root = 11)
 
-//mod -1 must have powers of two sufficient for array size 
+//mod -1 must have powers of two sufficient for array size
 
-// For p < 2^30 there is also e.g. , , 479 << 21
+// For p < 2^30 there is also e.g. ,  479 << 21
 // and 483 << 21 (same root). The last two are > 10^9.
 
 // to check if the mod is sufficient for the size
@@ -22,8 +24,8 @@ bool is_sufficient(long long M, int n) {
     return (1LL << max_k) >= n;
 }
 // Global settings initialized dynamically or manually
-ll mod = 998244353; 
-int root = 3; 
+ll mod = 998244353;
+int root = 3;
 
 ll modpow(ll b, ll e) {
     ll ans = 1;
@@ -41,7 +43,7 @@ int modpow(int b, int e, int m) {
 
 // Automatically finds the primitive root for the active global 'mod'
 // Primitive Root of the mod of form 2^a * b + 1
-//(b<<a)+1 
+//(b<<a)+1
 int generator() {
     vector<int> fact;
     int phi = mod - 1, n = phi;
@@ -66,17 +68,17 @@ int generator() {
 // In-place NTT loop
 void ntt(vector<int> &a) {
     int n = (int)a.size(), L = 31 - __builtin_clz(n);
-    
-    static vector<int> rt(2, 1); 
-    for (int k = 2, s = 2; k < n; k *= 2, s++) { 
+
+     vector<int> rt(2, 1);
+    for (int k = 2, s = 2; k < n; k *= 2, s++) {
         rt.resize(n);
-        
+
         int z[] = {1, modpow(root, mod >> s, mod)};
-        
-        for (int i = k; i < 2 * k; ++i) 
+
+        for (int i = k; i < 2 * k; ++i)
             rt[i] = (ll)rt[i / 2] * z[i & 1] % mod;
     }
-    static vector<int> rev(n);
+     vector<int> rev(n);
     for (int i = 0; i < n; ++i) {
         rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
     }
@@ -87,9 +89,9 @@ void ntt(vector<int> &a) {
         for (int i = 0; i < n; i += 2 * k) {
             for (int j = 0; j < k; ++j) {
                 int z = (ll)rt[j + k] * a[i + j + k] % mod, &ai = a[i + j];
-                
+
                 a[i + j + k] = ai - z + (z > ai ? mod : 0);
-                
+
                 ai += (ai + z >= mod ? z - mod : z);
             }
         }
@@ -99,21 +101,21 @@ void ntt(vector<int> &a) {
 // Single-modulus Convolution
 vector<int> conv(const vector<int> &a, const vector<int> &b) {
     if (a.empty() || b.empty()) return {};
-    
+
     int s = (int)a.size() + (int)b.size() - 1, B = 32 - __builtin_clz(s), n = 1 << B;
-    
+
     int inv = modpow(n, mod - 2, mod);
-    
+
     vector<int> L(a), R(b), out(n);
-    
+
     L.resize(n), R.resize(n);
-    
+
     ntt(L), ntt(R);
-    
+
     for (int i = 0; i < n; ++i) out[-i & (n - 1)] = (ll)L[i] * R[i] % mod * inv % mod;
-    
+
     ntt(out);
-    
+
     return {out.begin(), out.begin() + s};
 }
 
@@ -128,14 +130,15 @@ int main() {
 
     // Dynamic root setup at runtime based on mod configuration
     mod = 998244353;
-    root = generator(); 
+    root = generator();
     //cout<<is_sufficient(mod,1e6)<<endl; //-->true;
 
     vector<int> poly_A = {1, 2, 3};
-    vector<int> poly_B = {4, 5, 6};
+    vector<int> poly_B = {3, 4};
 
     vector<int> result = conv(poly_A, poly_B);
 
+    // Expected Output: 3 10 17 12  -> (3 + 10x + 17x^2 + 12x^3)
     for (int x : result) cout << x << " ";
     cout << "\n";
 
