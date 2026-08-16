@@ -1,3 +1,15 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+/*
+================================== Trie ==================================
+TIME COMPLEXITIES:
+- Insert / Erase / Search / Count : O(|S|)
+- Distinct Words                  : O(1)
+- Kth Lexicographical String      : O(ALPHA * |S|)
+- Clear                           : O(1)
+==========================================================================*/
+
 /*
 ================================== Trie ==================================
 
@@ -51,28 +63,31 @@ Notes
 
 struct Trie {
     static const int ALPHA = 26;
-    static const int MAXN = 2000005;
+    static const int MAXN = 2000005; // Adjust based on total length of strings
 
     struct Node {
         int nxt[ALPHA];
         int pref, end;
 
-        Node() {
-            memset(nxt, -1, sizeof nxt);
+        void reset() {
+            memset(nxt, -1, sizeof(nxt));
             pref = end = 0;
         }
     };
 
-    Node tr[MAXN];
+    vector<Node> tr;
     int nodes;
+    int distinct_count; // Tracks unique strings in O(1)
 
     Trie() {
-        nodes = 1;
+        tr.resize(MAXN);
+        clear();
     }
 
     void clear() {
         nodes = 1;
-        tr[0] = Node();
+        distinct_count = 0;
+        tr[0].reset();
     }
 
     void insert(const string &s) {
@@ -81,83 +96,61 @@ struct Trie {
 
         for (char c : s) {
             int x = c - 'a';
-
             if (tr[cur].nxt[x] == -1) {
                 tr[cur].nxt[x] = nodes;
-                tr[nodes] = Node();
+                tr[nodes].reset();
                 nodes++;
             }
-
             cur = tr[cur].nxt[x];
             tr[cur].pref++;
         }
 
+        if (tr[cur].end == 0) distinct_count++;
         tr[cur].end++;
     }
 
-    bool search(const string &s) {
+    bool search(const string &s) const {
         int cur = 0;
-
         for (char c : s) {
             int x = c - 'a';
-
-            if (tr[cur].nxt[x] == -1)
-                return false;
-
+            if (tr[cur].nxt[x] == -1) return false;
             cur = tr[cur].nxt[x];
         }
-
-        return tr[cur].end;
+        return tr[cur].end > 0;
     }
 
-    bool startsWith(const string &s) {
+    bool startsWith(const string &s) const {
         int cur = 0;
-
         for (char c : s) {
             int x = c - 'a';
-
-            if (tr[cur].nxt[x] == -1)
-                return false;
-
+            if (tr[cur].nxt[x] == -1) return false;
             cur = tr[cur].nxt[x];
         }
-
         return true;
     }
 
-    int countWord(const string &s) {
+    int countWord(const string &s) const {
         int cur = 0;
-
         for (char c : s) {
             int x = c - 'a';
-
-            if (tr[cur].nxt[x] == -1)
-                return 0;
-
+            if (tr[cur].nxt[x] == -1) return 0;
             cur = tr[cur].nxt[x];
         }
-
         return tr[cur].end;
     }
 
-    int countPrefix(const string &s) {
+    int countPrefix(const string &s) const {
         int cur = 0;
-
         for (char c : s) {
             int x = c - 'a';
-
-            if (tr[cur].nxt[x] == -1)
-                return 0;
-
+            if (tr[cur].nxt[x] == -1) return 0;
             cur = tr[cur].nxt[x];
         }
-
         return tr[cur].pref;
     }
 
     bool erase(const string &s) {
-        if (!search(s))
-            return false;
+        if (!search(s)) return false;
 
         int cur = 0;
         tr[cur].pref--;
@@ -169,64 +162,51 @@ struct Trie {
         }
 
         tr[cur].end--;
+        if (tr[cur].end == 0) distinct_count--;
         return true;
     }
 
-    int distinct() {
-        int ans = 0;
-
-        for (int i = 0; i < nodes; i++)
-            ans += (tr[i].end > 0);
-
-        return ans;
+    // Returns total number of unique strings in O(1)
+    int distinct() const {
+        return distinct_count;
     }
 
-    string kth(int k) {
+    // 1-indexed kth lexicographical string
+    string kth(int k) const {
         string ans;
         int cur = 0;
 
         while (true) {
-
             if (tr[cur].end) {
-                if (k <= tr[cur].end)
-                    return ans;
-
+                if (k <= tr[cur].end) return ans;
                 k -= tr[cur].end;
             }
 
             bool ok = false;
-
             for (int c = 0; c < ALPHA; c++) {
                 int to = tr[cur].nxt[c];
+                if (to == -1) continue;
 
-                if (to == -1)
-                    continue;
-
-                if (tr[to].pref < k)
+                if (tr[to].pref < k) {
                     k -= tr[to].pref;
-                else {
+                } else {
                     ans += char(c + 'a');
                     cur = to;
                     ok = true;
                     break;
                 }
             }
-
-            if (!ok)
-                return "";
+            if (!ok) return "";
         }
     }
 
-    void dfs(int node, string &cur, vector<string> &res) {
-
+    void dfs(int node, string &cur, vector<string> &res) const {
         for (int i = 0; i < tr[node].end; i++)
             res.push_back(cur);
 
         for (int c = 0; c < ALPHA; c++) {
             int to = tr[node].nxt[c];
-
-            if (to == -1)
-                continue;
+            if (to == -1) continue;
 
             cur += char(c + 'a');
             dfs(to, cur, res);
@@ -234,7 +214,7 @@ struct Trie {
         }
     }
 
-    vector<string> allStrings() {
+    vector<string> allStrings() const {
         vector<string> res;
         string cur;
         dfs(0, cur, res);
@@ -242,66 +222,29 @@ struct Trie {
     }
 };
 
-
+// =========================================================================
+// MAIN EXAMPLE
+// =========================================================================
 int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 
     Trie trie;
 
-    // Insert
     trie.insert("apple");
     trie.insert("app");
     trie.insert("banana");
-    trie.insert("apple");   // duplicate
+    trie.insert("apple"); // duplicate
 
-    // Search
-    cout << trie.search("apple") << '\n';      // 1
-    cout << trie.search("orange") << '\n';     // 0
+    cout << "Search apple: " << trie.search("apple") << "\n";     // 1
+    cout << "Count apple: " << trie.countWord("apple") << "\n";  // 2
+    cout << "Distinct words: " << trie.distinct() << "\n";       // 3
 
-    // Prefix
-    cout << trie.startsWith("app") << '\n';    // 1
-    cout << trie.startsWith("cat") << '\n';    // 0
-
-    // Count occurrences
-    cout << trie.countWord("apple") << '\n';   // 2
-    cout << trie.countWord("app") << '\n';     // 1
-
-    // Count strings having prefix
-    cout << trie.countPrefix("app") << '\n';   // 3
-    // apple, apple, app
-
-    // Distinct strings
-    cout << trie.distinct() << '\n';           // 3
-
-    // Lexicographical order (1-indexed)
-    cout << trie.kth(1) << '\n';               // app
-    cout << trie.kth(2) << '\n';               // apple
-    cout << trie.kth(3) << '\n';               // apple
-    cout << trie.kth(4) << '\n';               // banana
-
-    // Print all strings
-    vector<string> words = trie.allStrings();
-
-    for (auto &s : words)
-        cout << s << '\n';
-
-    /*
-        Output:
-        app
-        apple
-        apple
-        banana
-    */
-
-    // Erase one occurrence
     trie.erase("apple");
+    cout << "After erasing 1 apple, distinct words: " << trie.distinct() << "\n"; // 3 (apple still exists once)
 
-    cout << trie.countWord("apple") << '\n';   // 1
-    cout << trie.distinct() << '\n';           // 3
-
-    // Clear the trie
-    trie.clear();
-
-    cout << trie.search("apple") << '\n';      // 0
+    trie.erase("apple");
+    cout << "After erasing 2nd apple, distinct words: " << trie.distinct() << "\n"; // 2 (apple is gone)
 
     return 0;
 }
