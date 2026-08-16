@@ -1,250 +1,371 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 /*
-================================== Trie ==================================
-TIME COMPLEXITIES:
-- Insert / Erase / Search / Count : O(|S|)
-- Distinct Words                  : O(1)
-- Kth Lexicographical String      : O(ALPHA * |S|)
-- Clear                           : O(1)
-==========================================================================*/
+============================= Binary Trie =============================
 
-/*
-================================== Trie ==================================
-
-Trie trie;
+BinaryTrie trie;
 
 Operations
 ----------
-trie.insert(s);              // Insert string s.
+trie.insert(x);              // Insert number x.
 
-trie.erase(s);               // Remove one occurrence of s.
-                              // Returns true if s existed.
+trie.erase(x);               // Remove one occurrence of x.
+                             // Returns true if x existed.
 
-trie.search(s);              // Returns true if s exists.
+trie.search(x);              // Returns true if x exists.
 
-trie.startsWith(pref);       // Returns true if any string has prefix pref.
+trie.count(x);               // Number of occurrences of x.
 
-trie.countWord(s);           // Number of occurrences of s.
+trie.maxXor(x);              // Returns the maximum XOR VALUE with x.
+                             // Example:
+                             // Trie = {3,5,10}, x = 6
+                             // 6^3 = 5
+                             // 6^5 = 3
+                             // 6^10 = 12
+                             // Returns 12.
 
-trie.countPrefix(pref);      // Number of strings starting with pref.
+trie.minXor(x);              // Returns the minimum XOR VALUE with x.
+                             // Example:
+                             // Trie = {3,5,10}, x = 6
+                             // Returns 3 (because 6^5 = 3).
 
-trie.distinct();             // Number of distinct strings.
+trie.maxXorElement(x);       // Returns the ELEMENT that gives max XOR.
+                             // Example:
+                             // Trie = {3,5,10}, x = 6
+                             // Returns 10.
 
-trie.kth(k);                 // 1-indexed kth lexicographical string.
-                              // Returns "" if k is invalid.
+trie.minXorElement(x);       // Returns the ELEMENT that gives min XOR.
+                             // Example:
+                             // Trie = {3,5,10}, x = 6
+                             // Returns 5.
 
-trie.allStrings();           // Returns all strings in lexicographical order.
-
+trie.countXorLess(x, k);          // Number of elements y such that (x ^ y) < k.
+                                  // Example:
+                                  // Trie = {1,2,3,4}, x = 5, k = 4
+                                  // 5^1 = 4  (No)
+                                  // 5^2 = 7  (No)
+                                  // 5^3 = 6  (No)
+                                  // 5^4 = 1  (Yes)
+                                  // Returns 1.
+                                  
 trie.clear();                // Clears the trie.
 
 Complexities
 ------------
-Insert          O(|S|)
-Erase           O(|S|)
-Search          O(|S|)
-StartsWith      O(|S|)
-CountWord       O(|S|)
-CountPrefix     O(|S|)
-Distinct        O(nodes)
-Kth             O(ALPHA * |S|)
-AllStrings      O(total characters)
+Insert          O(LOG)
+Erase           O(LOG)
+Search          O(LOG)
+Count           O(LOG)
+Max XOR         O(LOG)
+Min XOR         O(LOG)
 Clear           O(1)
 
 Notes
 -----
-- Supports duplicate strings.
+- Supports duplicate numbers.
 - erase() removes ONE occurrence.
-- Alphabet = 'a' ... 'z'.
-- Increase MAXN if needed.
+- LOG = 31 for int, 63 for long long.
+- Currently supports numbers in [0, 2^31).
 
-==========================================================================*/
+=======================================================================
+*/
 
-struct Trie {
-    static const int ALPHA = 26;
-    static const int MAXN = 2000005; // Adjust based on total length of strings
+struct BinaryTrie {
+
+    static const int LOG = 41;
+    static const int MAXN = 3200005;
 
     struct Node {
-        int nxt[ALPHA];
+        int nxt[2];
         int pref, end;
 
-        void reset() {
-            memset(nxt, -1, sizeof(nxt));
+        Node() {
+            nxt[0] = nxt[1] = -1;
             pref = end = 0;
         }
     };
 
-    vector<Node> tr;
+    Node tr[MAXN];
     int nodes;
-    int distinct_count; // Tracks unique strings in O(1)
 
-    Trie() {
-        tr.resize(MAXN);
-        clear();
+    BinaryTrie() {
+        nodes = 1;
     }
 
     void clear() {
         nodes = 1;
-        distinct_count = 0;
-        tr[0].reset();
+        tr[0] = Node();
     }
 
-    void insert(const string &s) {
+    void insert(int x) {
         int cur = 0;
         tr[cur].pref++;
 
-        for (char c : s) {
-            int x = c - 'a';
-            if (tr[cur].nxt[x] == -1) {
-                tr[cur].nxt[x] = nodes;
-                tr[nodes].reset();
+        for (int b = LOG - 1; b >= 0; b--) {
+            int bit = (x >> b) & 1;
+
+            if (tr[cur].nxt[bit] == -1) {
+                tr[cur].nxt[bit] = nodes;
+                tr[nodes] = Node();
                 nodes++;
             }
-            cur = tr[cur].nxt[x];
+
+            cur = tr[cur].nxt[bit];
             tr[cur].pref++;
         }
 
-        if (tr[cur].end == 0) distinct_count++;
         tr[cur].end++;
     }
 
-    bool search(const string &s) const {
+    bool search(int x) {
         int cur = 0;
-        for (char c : s) {
-            int x = c - 'a';
-            if (tr[cur].nxt[x] == -1) return false;
-            cur = tr[cur].nxt[x];
-        }
-        return tr[cur].end > 0;
-    }
 
-    bool startsWith(const string &s) const {
-        int cur = 0;
-        for (char c : s) {
-            int x = c - 'a';
-            if (tr[cur].nxt[x] == -1) return false;
-            cur = tr[cur].nxt[x];
-        }
-        return true;
-    }
+        for (int b = LOG - 1; b >= 0; b--) {
+            int bit = (x >> b) & 1;
 
-    int countWord(const string &s) const {
-        int cur = 0;
-        for (char c : s) {
-            int x = c - 'a';
-            if (tr[cur].nxt[x] == -1) return 0;
-            cur = tr[cur].nxt[x];
+            if (tr[cur].nxt[bit] == -1)
+                return false;
+
+            cur = tr[cur].nxt[bit];
         }
+
         return tr[cur].end;
     }
 
-    int countPrefix(const string &s) const {
+    int count(int x) {
         int cur = 0;
-        for (char c : s) {
-            int x = c - 'a';
-            if (tr[cur].nxt[x] == -1) return 0;
-            cur = tr[cur].nxt[x];
+
+        for (int b = LOG - 1; b >= 0; b--) {
+            int bit = (x >> b) & 1;
+
+            if (tr[cur].nxt[bit] == -1)
+                return 0;
+
+            cur = tr[cur].nxt[bit];
         }
-        return tr[cur].pref;
+
+        return tr[cur].end;
     }
 
-    bool erase(const string &s) {
-        if (!search(s)) return false;
+    bool erase(int x) {
+        if (!search(x))
+            return false;
 
         int cur = 0;
         tr[cur].pref--;
 
-        for (char c : s) {
-            int x = c - 'a';
-            cur = tr[cur].nxt[x];
+        for (int b = LOG - 1; b >= 0; b--) {
+            int bit = (x >> b) & 1;
+            cur = tr[cur].nxt[bit];
             tr[cur].pref--;
         }
 
         tr[cur].end--;
-        if (tr[cur].end == 0) distinct_count--;
         return true;
     }
 
-    // Returns total number of unique strings in O(1)
-    int distinct() const {
-        return distinct_count;
-    }
-
-    // 1-indexed kth lexicographical string
-    string kth(int k) const {
-        string ans;
+    int maxXor(int x) {
         int cur = 0;
+        int ans = 0;
 
-        while (true) {
-            if (tr[cur].end) {
-                if (k <= tr[cur].end) return ans;
-                k -= tr[cur].end;
+        for (int b = LOG - 1; b >= 0; b--) {
+            int bit = (x >> b) & 1;
+            int want = bit ^ 1;
+
+            if (tr[cur].nxt[want] != -1 &&
+                tr[tr[cur].nxt[want]].pref > 0) {
+
+                ans |= (1LL << b);
+                cur = tr[cur].nxt[want];
             }
-
-            bool ok = false;
-            for (int c = 0; c < ALPHA; c++) {
-                int to = tr[cur].nxt[c];
-                if (to == -1) continue;
-
-                if (tr[to].pref < k) {
-                    k -= tr[to].pref;
-                } else {
-                    ans += char(c + 'a');
-                    cur = to;
-                    ok = true;
-                    break;
-                }
-            }
-            if (!ok) return "";
+            else
+                cur = tr[cur].nxt[bit];
         }
+
+        return ans;
     }
 
-    void dfs(int node, string &cur, vector<string> &res) const {
-        for (int i = 0; i < tr[node].end; i++)
-            res.push_back(cur);
+    int minXor(int x) {
+        int cur = 0;
+        int ans = 0;
 
-        for (int c = 0; c < ALPHA; c++) {
-            int to = tr[node].nxt[c];
-            if (to == -1) continue;
+        for (int b = LOG - 1; b >= 0; b--) {
+            int bit = (x >> b) & 1;
 
-            cur += char(c + 'a');
-            dfs(to, cur, res);
-            cur.pop_back();
+            if (tr[cur].nxt[bit] != -1 &&
+                tr[tr[cur].nxt[bit]].pref > 0) {
+
+                cur = tr[cur].nxt[bit];
+            }
+            else {
+                ans |= (1LL << b);
+                cur = tr[cur].nxt[bit ^ 1];
+            }
         }
+
+        return ans;
     }
 
-    vector<string> allStrings() const {
-        vector<string> res;
-        string cur;
-        dfs(0, cur, res);
-        return res;
+    int maxXorElement(int x) {
+        int cur = 0;
+        int ans = 0;
+
+        for (int b = LOG - 1; b >= 0; b--) {
+            int bit = (x >> b) & 1;
+            int want = bit ^ 1;
+
+            if (tr[cur].nxt[want] != -1 &&
+                tr[tr[cur].nxt[want]].pref > 0) {
+
+                ans |= (1LL * want << b);
+                cur = tr[cur].nxt[want];
+            }
+            else {
+                ans |= (1LL * bit << b);
+                cur = tr[cur].nxt[bit];
+            }
+        }
+
+        return ans;
+    }
+
+    int minXorElement(int x) {
+        int cur = 0;
+        int ans = 0;
+
+        for (int b = LOG - 1; b >= 0; b--) {
+            int bit = (x >> b) & 1;
+
+            if (tr[cur].nxt[bit] != -1 &&
+                tr[tr[cur].nxt[bit]].pref > 0) {
+
+                ans |= (1LL * bit << b);
+                cur = tr[cur].nxt[bit];
+            }
+            else {
+                ans |= (1LL * (bit ^ 1) << b);
+                cur = tr[cur].nxt[bit ^ 1];
+            }
+        }
+
+        return ans;
+    }
+    int countXorLess(int x, int k) {
+
+        int cur = 0;
+        int ans = 0;
+
+        for (int b = LOG - 1; b >= 0; b--) {
+
+            if (cur == -1)
+                break;
+
+            int xb = (x >> b) & 1;
+            int kb = (k >> b) & 1;
+
+            if (kb == 0) {
+
+                // xor bit must be 0
+                cur = tr[cur].nxt[xb];
+            }
+            else {
+
+                // xor bit = 0
+                int same = tr[cur].nxt[xb];
+
+                if (same != -1)
+                    ans += tr[same].pref;
+
+                // continue with xor bit = 1
+                cur = tr[cur].nxt[xb ^ 1];
+            }
+        }
+
+        return ans;
+    }
+    int countXorAtLeast(int x, int k) {
+        return tr[0].pref - countXorLess(x, k);
+    }
+    int kth(int k) {
+        // 1-indexed
+        int cur = 0;
+        int ans = 0;
+
+        for (int b = LOG - 1; b >= 0; b--) {
+
+            int left = tr[cur].nxt[0];
+            int cntLeft = (left == -1 ? 0 : tr[left].pref);
+
+            if (k <= cntLeft) {
+                cur = left;
+            }
+            else {
+                k -= cntLeft;
+                ans |= (1 << b);
+                cur = tr[cur].nxt[1];
+            }
+        }
+
+        return ans;
+    }
+
+    int countLess(int x) {
+
+        int cur = 0;
+        int ans = 0;
+
+        for (int b = LOG - 1; b >= 0; b--) {
+
+            if (cur == -1) break;
+
+            int bit = (x >> b) & 1;
+
+            if (bit) {
+
+                int child = tr[cur].nxt[0];
+
+                if (child != -1)
+                    ans += tr[child].pref;
+
+                cur = tr[cur].nxt[1];
+            }
+            else
+                cur = tr[cur].nxt[0];
+        }
+
+        return ans;
     }
 };
 
-// =========================================================================
-// MAIN EXAMPLE
-// =========================================================================
+/*
+============================= Example =============================
+
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
 
-    Trie trie;
+    BinaryTrie trie;
 
-    trie.insert("apple");
-    trie.insert("app");
-    trie.insert("banana");
-    trie.insert("apple"); // duplicate
+    trie.insert(5);
+    trie.insert(10);
+    trie.insert(7);
+    trie.insert(5);
 
-    cout << "Search apple: " << trie.search("apple") << "\n";     // 1
-    cout << "Count apple: " << trie.countWord("apple") << "\n";  // 2
-    cout << "Distinct words: " << trie.distinct() << "\n";       // 3
+    cout << trie.search(5) << '\n';          // 1
+    cout << trie.search(8) << '\n';          // 0
 
-    trie.erase("apple");
-    cout << "After erasing 1 apple, distinct words: " << trie.distinct() << "\n"; // 3 (apple still exists once)
+    cout << trie.count(5) << '\n';           // 2
 
-    trie.erase("apple");
-    cout << "After erasing 2nd apple, distinct words: " << trie.distinct() << "\n"; // 2 (apple is gone)
+    cout << trie.maxXor(6) << '\n';          // Maximum XOR value
+    cout << trie.minXor(6) << '\n';          // Minimum XOR value
+
+    cout << trie.maxXorElement(6) << '\n';   // Element giving max XOR
+    cout << trie.minXorElement(6) << '\n';   // Element giving min XOR
+
+    trie.erase(5);
+
+    cout << trie.count(5) << '\n';           // 1
+
+    trie.clear();
 
     return 0;
 }
+
+===================================================================
+*/
