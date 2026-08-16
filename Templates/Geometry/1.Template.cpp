@@ -1,10 +1,31 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+/*
+ * =============================================================================
+ * COMPREHENSIVE 2D GEOMETRY TEMPLATE FOR COMPETITIVE PROGRAMMING
+ * =============================================================================
+ * 
+ * PROBLEM TYPES & TRIGGER CRITERIA:
+ * - Point, Vector, Line, Segment, Polygon, and Circle manipulation.
+ * - Intersection problems (Line-Line, Segment-Segment, Circle-Circle, Line-Circle).
+ * - Convex Hull, Point-in-Polygon (O(N) general, O(log N) convex).
+ * - Half-Plane Intersection O(N log N) for Feasible Regions / Kernel.
+ * - Rotating Calipers O(N) for Diameter / Farthest Pair of Points.
+ * - Minimum Enclosing Circle (Welzl's Algorithm) in Expected O(N).
+ * - Tangents (Point-to-Circle, Circle-to-Circle).
+ * - Minkowski Sum of Convex Polygons, Closest Pair of Points, Polygon Clipping.
+ *-
+ * CORE IDEA & MODIFICATIONS:
+ * - Floating-point precision managed via EPS (1e-9).
+ * - All structural objects utilize custom epsilon-safe comparisons (sgn, eq, le, ge).
+ * - Replace `long double` with `long long` for exact integer geometry when applicable.
+ * =============================================================================
+ */
+
 typedef long double ld;
 typedef ld T;
 
-// Floating-point precision constants
 const ld EPS = 1e-9;
 const ld PI = acosl(-1.0);
 
@@ -38,6 +59,10 @@ struct pt {
 
     bool operator==(pt p) const { return eq(x, p.x) && eq(y, p.y); }
     bool operator!=(pt p) const { return !(*this == p); }
+    bool operator<(pt p) const {
+        if (!eq(x, p.x)) return x < p.x;
+        return y < p.y - EPS;
+    }
 };
 
 void takepoint(pt &p) {
@@ -106,7 +131,6 @@ int half(pt p) {
     return p.y > 0 || (eq(p.y, 0) && p.x > 0) ? 0 : 1;
 }
 
-// Polar sort around origin (CCW)
 bool polarComp(pt a, pt b) {
     int h1 = half(a), h2 = half(b);
     if (h1 != h2) return h1 < h2;
@@ -161,12 +185,10 @@ line bisector(line l1, line l2, bool interior = true) {
   7. SEGMENT OPERATIONS
   ============================================================================
 */
-// Checks if point p lies on segment ab
 bool onSegment(pt a, pt b, pt p) {
     return sgn(orient(a, b, p)) == 0 && sgn(dot(a - p, b - p)) <= 0;
 }
 
-// Checks intersection of segment ab and segment cd
 bool segInter(pt a, pt b, pt c, pt d, pt &out) {
     T oa = orient(c, d, a), ob = orient(c, d, b);
     T oc = orient(a, b, c), od = orient(a, b, d);
@@ -182,7 +204,6 @@ bool segInter(pt a, pt b, pt c, pt d, pt &out) {
     return false;
 }
 
-// Distance from point p to segment ab
 ld distToSegment(pt a, pt b, pt p) {
     if (a == b) return length(p - a);
     pt v = b - a;
@@ -206,6 +227,7 @@ ld polygonArea(const vector<pt>& p) {
     return fabsl(area) / 2.0;
 }
 
+// Ray-Casting Algorithm O(N) - General Polygon
 // Returns: 1 inside, 0 on boundary, -1 outside
 int inPolygon(const vector<pt>& p, pt pt_in) {
     int n = p.size();
@@ -221,6 +243,31 @@ int inPolygon(const vector<pt>& p, pt pt_in) {
     return inside ? 1 : -1;
 }
 
+// Binary Search O(log N) - CCW Convex Polygon Only
+// Returns: 1 inside, 0 on boundary, -1 outside
+int inConvexPolygon(const vector<pt>& p, pt q) {
+    int n = p.size();
+    if (n < 3) return -1;
+    
+    T o1 = orient(p[0], p[1], q);
+    T o2 = orient(p[0], p[n - 1], q);
+    if (o1 < 0 || o2 > 0) return -1;
+    if (o1 == 0 && onSegment(p[0], p[1], q)) return 0;
+    if (o2 == 0 && onSegment(p[0], p[n - 1], q)) return 0;
+
+    int l = 1, r = n - 1;
+    while (r - l > 1) {
+        int mid = l + (r - l) / 2;
+        if (orient(p[0], p[mid], q) >= 0) l = mid;
+        else r = mid;
+    }
+    
+    T in_wedge = orient(p[l], p[r], q);
+    if (in_wedge < 0) return -1;
+    if (in_wedge == 0) return 0;
+    return 1;
+}
+
 bool isConvex(const vector<pt>& p) {
     int n = p.size();
     if (n < 3) return false;
@@ -233,14 +280,11 @@ bool isConvex(const vector<pt>& p) {
     return !(hasPos && hasNeg);
 }
 
-// Andrew's Monotone Chain Algorithm - O(N log N)
+// Andrew's Monotone Chain - O(N log N)
 vector<pt> convexHull(vector<pt> pts) {
     int n = pts.size();
     if (n <= 2) return pts;
-    sort(pts.begin(), pts.end(), [](pt a, pt b) {
-        if (!eq(a.x, b.x)) return a.x < b.x;
-        return a.y < b.y;
-    });
+    sort(pts.begin(), pts.end());
     vector<pt> hull;
     for (int i = 0; i < n; i++) {
         while (hull.size() >= 2 && sgn(orient(hull[hull.size() - 2], hull.back(), pts[i])) <= 0)
@@ -256,6 +300,47 @@ vector<pt> convexHull(vector<pt> pts) {
     return hull;
 }
 
+// Rotating Calipers O(N) - Convex Hull Diameter Squared
+T convexHullDiameterSq(const vector<pt>& hull) {
+    int n = hull.size();
+    if (n <= 1) return 0;
+    if (n == 2) return sq(hull[0] - hull[1]);
+
+    T max_d = 0;
+    int k = 1;
+    while (orient(hull[n - 1], hull[0], hull[(k + 1) % n]) >
+           orient(hull[n - 1], hull[0], hull[k])) {
+        k++;
+    }
+
+    for (int i = 0, j = k; i <= k; i++) {
+        while (orient(hull[i], hull[(i + 1) % n], hull[(j + 1) % n]) >
+               orient(hull[i], hull[(i + 1) % n], hull[j])) {
+            max_d = max(max_d, sq(hull[i] - hull[j]));
+            j = (j + 1) % n;
+        }
+        max_d = max(max_d, sq(hull[i] - hull[j]));
+    }
+    return max_d;
+}
+
+// Polygon Cut / Clipping by Line (Keeps part on the left side of line l)
+vector<pt> cutPolygon(const vector<pt>& p, line l) {
+    vector<pt> res;
+    int n = p.size();
+    for (int i = 0; i < n; i++) {
+        pt cur = p[i], next = p[(i + 1) % n];
+        T s1 = l.side(cur), s2 = l.side(next);
+        if (s1 >= -EPS) res.push_back(cur);
+        if (sgn(s1) * sgn(s2) < 0) {
+            pt out;
+            inter(l, line(cur, next), out);
+            res.push_back(out);
+        }
+    }
+    return res;
+}
+
 /*
   ============================================================================
   9. CIRCLE STRUCTURE & CIRCLE OPERATIONS
@@ -265,7 +350,6 @@ struct circle {
     pt c; ld r;
 };
 
-// Line and Circle intersection
 vector<pt> interLineCircle(line l, circle circ) {
     vector<pt> res;
     ld d = l.dist(circ.c);
@@ -282,7 +366,6 @@ vector<pt> interLineCircle(line l, circle circ) {
     return res;
 }
 
-// Circle and Circle intersection
 vector<pt> interCircleCircle(circle c1, circle c2) {
     vector<pt> res;
     ld d = length(c1.c - c2.c);
@@ -301,12 +384,35 @@ vector<pt> interCircleCircle(circle c1, circle c2) {
     return res;
 }
 
-// Tangent points from point p to circle circ
 vector<pt> tangents(pt p, circle circ) {
     return interCircleCircle(circ, circle{p, sqrtl(sq(p - circ.c) - circ.r * circ.r)});
 }
 
-// Circumcircle of 3 points
+// Common Tangents between Two Circles
+vector<line> commonTangents(circle c1, circle c2) {
+    vector<line> ans;
+    for (int inner : {-1, 1}) {
+        ld r2 = c2.r * inner;
+        ld dr = c1.r - r2;
+        pt d = c2.c - c1.c;
+        ld dist_sq = sq(d);
+        if (sgn(dist_sq - dr * dr) < 0) continue;
+        ld h = sqrtl(max((ld)0.0, dist_sq - dr * dr));
+        
+        for (int sign : {-1, 1}) {
+            pt v = (d * dr + perp(d) * (h * sign)) / dist_sq;
+            pt p1 = c1.c + v * c1.r;
+            pt p2 = c2.c + v * r2;
+            if (p1 == p2) {
+                ans.push_back(line(p1, p1 + perp(d)));
+            } else {
+                ans.push_back(line(p1, p2));
+            }
+        }
+    }
+    return ans;
+}
+
 circle circumcircle(pt a, pt b, pt c) {
     line perp1((a + b) / 2.0, (a + b) / 2.0 + perp(b - a));
     line perp2((b + c) / 2.0, (b + c) / 2.0 + perp(c - b));
@@ -315,12 +421,189 @@ circle circumcircle(pt a, pt b, pt c) {
     return {center, length(a - center)};
 }
 
-// Incircle of 3 points
 circle incircle(pt a, pt b, pt c) {
     ld la = length(b - c), lb = length(a - c), lc = length(a - b);
     pt center = (a * la + b * lb + c * lc) / (la + lb + lc);
     line l(a, b);
     return {center, l.dist(center)};
+}
+
+// Welzl's Algorithm for Minimum Enclosing Circle - Expected O(N)
+circle mecTwoPoints(pt a, pt b) {
+    return {(a + b) / 2.0, length(a - b) / 2.0};
+}
+
+circle minEnclosingCircle(vector<pt> pts) {
+    static mt19937 rng(1337);
+    shuffle(pts.begin(), pts.end(), rng);
+
+    int n = pts.size();
+    if (n == 0) return {{0, 0}, 0};
+    if (n == 1) return {pts[0], 0};
+
+    circle c = mecTwoPoints(pts[0], pts[1]);
+    for (int i = 2; i < n; i++) {
+        if (length(pts[i] - c.c) > c.r + EPS) {
+            c = {pts[i], 0};
+            for (int j = 0; j < i; j++) {
+                if (length(pts[j] - c.c) > c.r + EPS) {
+                    c = mecTwoPoints(pts[i], pts[j]);
+                    for (int k = 0; k < j; k++) {
+                        if (length(pts[k] - c.c) > c.r + EPS) {
+                            c = circumcircle(pts[i], pts[j], pts[k]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return c;
+}
+
+/*
+  ============================================================================
+  10. HALF-PLANE INTERSECTION O(N log N)
+  ============================================================================
+*/
+struct Halfplane {
+    pt p, v;
+    ld angle;
+
+    Halfplane() {}
+    Halfplane(pt p, pt q) : p(p), v(q - p), angle(atan2l(v.y, v.x)) {}
+
+    bool out(pt q) const { return orient(p, p + v, q) < -EPS; }
+
+    bool operator<(const Halfplane& hp) const {
+        if (!eq(angle, hp.angle)) return angle < hp.angle;
+        return orient(p, p + v, hp.p) < 0;
+    }
+};
+
+vector<pt> halfplaneIntersection(vector<Halfplane> h) {
+    sort(h.begin(), h.end());
+
+    vector<Halfplane> keep;
+    for (int i = 0; i < (int)h.size(); i++) {
+        if (i && eq(h[i].angle, h[i - 1].angle)) continue;
+        keep.push_back(h[i]);
+    }
+
+    deque<Halfplane> dq;
+    deque<pt> pts;
+
+    for (auto& hp : keep) {
+        while (pts.size() && hp.out(pts.back())) {
+            pts.pop_back();
+            dq.pop_back();
+        }
+        while (pts.size() && hp.out(pts.front())) {
+            pts.pop_front();
+            dq.pop_front();
+        }
+        pt inter_pt;
+        if (dq.size()) {
+            inter(line(dq.back().p, dq.back().p + dq.back().v), line(hp.p, hp.p + hp.v), inter_pt);
+            pts.push_back(inter_pt);
+        }
+        dq.push_back(hp);
+    }
+
+    while (pts.size() && dq.front().out(pts.back())) {
+        pts.pop_back();
+        dq.pop_back();
+    }
+    while (pts.size() && dq.back().out(pts.front())) {
+        pts.pop_front();
+        dq.pop_front();
+    }
+
+    if (dq.size() < 3) return {};
+
+    vector<pt> poly(pts.begin(), pts.end());
+    pt final_pt;
+    inter(line(dq.back().p, dq.back().p + dq.back().v), line(dq.front().p, dq.front().p + dq.front().v), final_pt);
+    poly.push_back(final_pt);
+    return poly;
+}
+
+/*
+  ============================================================================
+  11. ADVANCED GEOMETRY ALGORITHMS
+  ============================================================================
+*/
+
+// Minkowski Sum of two Convex Polygons O(N + M)
+void reorder_polygon(vector<pt>& p) {
+    size_t pos = 0;
+    for (size_t i = 1; i < p.size(); i++) {
+        if (p[i].y < p[pos].y || (eq(p[i].y, p[pos].y) && p[i].x < p[pos].x))
+            pos = i;
+    }
+    rotate(p.begin(), p.begin() + pos, p.end());
+}
+
+vector<pt> minkowskiSum(vector<pt> P, vector<pt> Q) {
+    reorder_polygon(P);
+    reorder_polygon(Q);
+    P.push_back(P[0]);
+    P.push_back(P[1]);
+    Q.push_back(Q[0]);
+    Q.push_back(Q[1]);
+    vector<pt> res;
+    size_t i = 0, j = 0;
+    while (i < P.size() - 2 || j < Q.size() - 2) {
+        res.push_back(P[i] + Q[j]);
+        T c = cross(P[i + 1] - P[i], Q[j + 1] - Q[j]);
+        if (c >= 0 && i < P.size() - 2) i++;
+        if (c <= 0 && j < Q.size() - 2) j++;
+    }
+    return res;
+}
+
+// Closest Pair of Points Sweep-Line O(N log N)
+ld closestPair(vector<pt> pts) {
+    int n = pts.size();
+    if (n <= 1) return 1e18;
+    sort(pts.begin(), pts.end(), [](pt a, pt b) { return a.x < b.x; });
+    auto cmpY = [](pt a, pt b) { return a.y < b.y; };
+    multiset<pt, decltype(cmpY)> s(cmpY);
+    ld d = 1e18;
+    int left = 0;
+    for (int i = 0; i < n; i++) {
+        while (left < i && pts[i].x - pts[left].x >= d) {
+            s.erase(s.find(pts[left]));
+            left++;
+        }
+        auto it1 = s.lower_bound({pts[i].x, pts[i].y - d});
+        auto it2 = s.upper_bound({pts[i].x, pts[i].y + d});
+        for (auto it = it1; it != it2; ++it) {
+            d = min(d, length(pts[i] - *it));
+        }
+        s.insert(pts[i]);
+    }
+    return d;
+}
+
+// Pick's Theorem Helper (Requires integer coordinates)
+// Area = I + B/2 - 1  ==>  I = Area - B/2 + 1
+// Returns pair: {boundary_lattice_points (B), interior_lattice_points (I)}
+pair<long long, long long> latticePointsCount(const vector<pt>& p) {
+    int n = p.size();
+    long long B = 0;
+    for (int i = 0; i < n; i++) {
+        pt a = p[i], b = p[(i + 1) % n];
+        long long dx = llround(fabsl(a.x - b.x));
+        long long dy = llround(fabsl(a.y - b.y));
+        B += std::gcd(dx, dy);
+    }
+    ld double_area = 0;
+    for (int i = 0; i < n; i++) {
+        double_area += cross(p[i], p[(i + 1) % n]);
+    }
+    long long twice_area = llround(fabsl(double_area));
+    long long I = (twice_area - B + 2) / 2;
+    return {B, I};
 }
 
 int main() {
